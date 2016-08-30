@@ -8,6 +8,7 @@ import it.espr.injector.bean.BeanWithConstructorWithMultipleLevelDependencies;
 import it.espr.injector.bean.BeanWithConstructorWithSingleLevelDependencies;
 import it.espr.injector.bean.EmptyBean;
 import it.espr.injector.bean.EmptyBeanWithConstructor;
+import it.espr.injector.bean.SingletonBean;
 
 public class BeanInstantiatorTest {
 
@@ -37,6 +38,15 @@ public class BeanInstantiatorTest {
 	public void BeanWithConstructorWithMultipleLevelDependencies() throws BeanException {
 		BeanWithConstructorWithMultipleLevelDependencies bean = beanInstantiator.instantiate(beanInspector.inspect(BeanWithConstructorWithMultipleLevelDependencies.class));
 		assertThat(bean).isNotNull();
+	}
+
+	@Test
+	public void whenInstantiatingSignletonBeanAlwaysReturnSameInstance() throws BeanException {
+		Bean<SingletonBean> singletonBean = beanInspector.inspect(SingletonBean.class);
+
+		SingletonBean singleton1 = beanInstantiator.instantiate(singletonBean);
+		SingletonBean singleton2 = beanInstantiator.instantiate(singletonBean);
+		assertThat(singleton1).isSameAs(singleton2);
 	}
 
 }

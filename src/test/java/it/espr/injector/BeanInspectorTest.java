@@ -8,6 +8,7 @@ import it.espr.injector.bean.BeanWithConstructorWithMultipleLevelDependencies;
 import it.espr.injector.bean.BeanWithConstructorWithSingleLevelDependencies;
 import it.espr.injector.bean.EmptyBean;
 import it.espr.injector.bean.EmptyBeanWithConstructor;
+import it.espr.injector.bean.SingletonBean;
 
 public class BeanInspectorTest {
 
@@ -59,6 +60,17 @@ public class BeanInspectorTest {
 		assertThat(bean.type).isEqualTo(BeanWithConstructorWithMultipleLevelDependencies.class);
 		assertThat(bean.constructorParameters).hasSize(3);
 		assertThat(bean.key).isEqualTo(BeanWithConstructorWithMultipleLevelDependencies.class.getCanonicalName());
+	}
+
+	@Test
+	public void inspectSingletonBean() throws BeanException {
+		Bean<SingletonBean> bean = beanInspector.inspect(SingletonBean.class);
+
+		assertThat(bean).isNotNull();
+		assertThat(bean.type).isEqualTo(SingletonBean.class);
+		assertThat(bean.constructorParameters).isNull();
+		assertThat(bean.key).isEqualTo(SingletonBean.class.getCanonicalName());
+		assertThat(bean.singleton).isTrue();
 	}
 
 }

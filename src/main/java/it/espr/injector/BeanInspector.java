@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Singleton;
+
 public class BeanInspector {
 
 	@SuppressWarnings("unchecked")
@@ -31,15 +33,19 @@ public class BeanInspector {
 
 		if (bean == null) {
 			Constructor<Type> constructor = inspectConstructors(type);
-			List<Bean<?>> constructorParameters = inspectConstructorParameters(constructor);
 			String name = this.inspectName(type);
-
 			String key = this.key(null, type);
+			boolean singleton = this.inspectSingleton(type);
+			List<Bean<?>> constructorParameters = inspectConstructorParameters(constructor);
 
-			bean = new Bean<Type>(name, key, type, constructor, constructorParameters);
+			bean = new Bean<Type>(name, key, singleton, type, constructor, constructorParameters);
 			this.cache.put(type, bean);
 		}
 		return bean;
+	}
+
+	private boolean inspectSingleton(Class<?> type) {
+		return type.isAnnotationPresent(Singleton.class);
 	}
 
 	private String inspectName(Class<?> type) {

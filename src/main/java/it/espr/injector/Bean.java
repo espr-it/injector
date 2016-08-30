@@ -9,16 +9,19 @@ public class Bean<Type> {
 
 	public final String key;
 
+	public final boolean singleton;
+
 	public final Class<Type> type;
 
 	public final Constructor<Type> constructor;
 
 	public final List<Bean<?>> constructorParameters;
 
-	public Bean(String name, String key, Class<Type> type, Constructor<Type> constructor, List<Bean<?>> constructorParameters) {
+	public Bean(String name, String key, boolean singleton, Class<Type> type, Constructor<Type> constructor, List<Bean<?>> constructorParameters) {
 		super();
 		this.name = name;
 		this.key = key;
+		this.singleton = singleton;
 		this.type = type;
 		this.constructor = constructor;
 		this.constructorParameters = constructorParameters;
