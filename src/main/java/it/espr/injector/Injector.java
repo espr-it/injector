@@ -19,6 +19,7 @@ public class Injector {
 		this.configuration = new Configuration();
 		for (Configuration configuration : configurations) {
 			this.configuration.bindings.putAll(configuration.bindings);
+			this.configuration.instances.putAll(configuration.instances);
 		}
 		this.beanFactory = new BeanFactory(this.configuration);
 		this.classInspector = new ClassInspector(this.configuration);
@@ -40,6 +41,7 @@ public class Injector {
 			instance = beanFactory.create(bean);
 		} catch (Exception e) {
 			log.error("Problem when getting instance of {}", type, e);
+			throw new RuntimeException("Can't inject bean of type '" + type + "'", e);
 		}
 
 		return instance;

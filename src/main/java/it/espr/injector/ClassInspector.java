@@ -1,6 +1,5 @@
 package it.espr.injector;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -22,21 +21,24 @@ public class ClassInspector {
 
 	private Configuration configuration;
 
+	private Utils utils;
+
 	ClassInspector(Configuration configuration) {
 		super();
 		this.configuration = configuration;
+		this.utils = new Utils();
 	}
 
 	@SuppressWarnings("unchecked")
-	private static class MyTypeSafeMap {
+	private class MyTypeSafeMap {
 		private Map<String, Bean<?>> map = new HashMap<>();
 
 		public <Type> void put(Class<Type> type, Bean<Type> value) {
-			map.put(key(value.name, type), value);
+			map.put(utils.key(value.name, type), value);
 		}
 
 		public <Type> Bean<Type> get(Class<Type> type, String name) {
-			return (Bean<Type>) map.get(key(name, type));
+			return (Bean<Type>) map.get(utils.key(name, type));
 		}
 	}
 
@@ -50,17 +52,19 @@ public class ClassInspector {
 		Bean<Type> bean = this.cache.get(type, named);
 
 		if (bean == null) {
-			if (this.configuration.isBound(type)) {
+			if (this.configuration.instances.containsKey(utils.key(named, type))) {
+				bean = new Bean<>(named, utils.key(named, type), true, type, null, null, null);
+			} else if (this.configuration.isBound(type)) {
 				bean = this.inspectBindings(type, named);
 			} else {
 				String name = this.inspectName(type);
 
-				if (!isEmpty(named) && (isEmpty(name) || !named.equals(name))) {
+				if (!utils.isEmpty(named) && (utils.isEmpty(name) || !named.equals(name))) {
 					return null;
 				}
 
 				Constructor<Type> constructor = inspectConstructors(type);
-				String key = key(name, type);
+				String key = utils.key(name, type);
 				boolean singleton = this.inspectSingleton(type);
 				List<Bean<?>> constructorParameters = inspectConstructorParameters(constructor);
 				Map<Field, Bean<?>> fields = this.inspectFields(type);
@@ -118,7 +122,7 @@ public class ClassInspector {
 			Class<?> t = entry.getKey().getType();
 			Named named = entry.getKey().getAnnotation(Named.class);
 			String n = null;
-			if (named != null && !isEmpty(named.value())) {
+			if (named != null && !utils.isEmpty(named.value())) {
 				n = named.value().trim();
 			}
 
@@ -138,7 +142,7 @@ public class ClassInspector {
 			constructorParametersBeans = new ArrayList<>();
 			for (int index = 0; index < constructorParameters.length; index++) {
 				try {
-					String named = this.getAnnotationValue(Named.class, constructor.getParameterAnnotations()[index]);
+					String named = utils.getAnnotationValue(Named.class, constructor.getParameterAnnotations()[index]);
 					constructorParametersBeans.add(this.inspect(constructorParameters[index], named));
 				} catch (BeanException e) {
 					throw new BeanException("Problem when inspecting '" + index + "' constructor parameter of type '" + constructorParameters[index] + "'");
@@ -166,27 +170,5 @@ public class ClassInspector {
 			throw new BeanException("Found '" + constructors.size() + "' valid constructors - can resolve as a bean");
 		}
 		return (Constructor<Type>) constructors.get(0);
-	}
-
-	public static String key(String name, Class<?> type) {
-		return (name == null ? "" : name) + type.getCanonicalName();
-	}
-
-	private static boolean isEmpty(String value) {
-		return value == null || value.trim().equals("");
-	}
-
-	private String getAnnotationValue(Class<? extends Annotation> annotationClass, Annotation[] annotations) {
-		String value = null;
-		for (Annotation annotation : annotations) {
-			if (annotation.annotationType() == annotationClass) {
-				if (annotationClass == Named.class) {
-					value = ((Named) annotation).value();
-					break;
-				}
-			}
-		}
-
-		return isEmpty(value) ? null : value;
 	}
 }

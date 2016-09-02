@@ -10,7 +10,6 @@ public class BeanFactory {
 
 	private Map<String, Object> cache = new HashMap<>();
 
-	@SuppressWarnings("unused")
 	private Configuration configuration;
 
 	BeanFactory(Configuration configuration) {
@@ -19,6 +18,10 @@ public class BeanFactory {
 
 	@SuppressWarnings("unchecked")
 	public <Type> Type create(Bean<Type> bean) {
+		if (configuration.instances.containsKey(bean.key)) {
+			return (Type) configuration.instances.get(bean.key);
+		}
+
 		Type instance = null;
 		if (bean.singleton) {
 			instance = (Type) this.cache.get(bean.key);
