@@ -1,8 +1,10 @@
 package it.espr.injector;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class BeanInstantiator {
 
@@ -26,6 +28,26 @@ public class BeanInstantiator {
 					}
 					instance = bean.constructor.newInstance(constructorParameterInstances);
 				}
+
+				// instantiate fields
+				if (bean.fields != null) {
+					for (Entry<Field, Bean<?>> entry : bean.fields.entrySet()) {
+						Field f = entry.getKey();
+						Bean<?> b = entry.getValue();
+						
+						boolean resetAccessible = false;
+						if (!f.isAccessible()) {
+							f.setAccessible(true);
+							resetAccessible = true;
+						}
+						f.set(instance, this.instantiate(b));
+						
+						if (resetAccessible) {
+							f.setAccessible(false);
+						}
+					}
+				}
+
 				if (bean.singleton) {
 					this.cache.put(bean.key, instance);
 				}

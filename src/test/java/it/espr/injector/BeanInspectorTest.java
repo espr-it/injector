@@ -2,17 +2,34 @@ package it.espr.injector;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Map.Entry;
+
+import javax.inject.Named;
+
+import org.fest.assertions.api.Assertions;
 import org.junit.Test;
 
 import it.espr.injector.bean.BeanWithConstructorWithMultipleLevelDependencies;
 import it.espr.injector.bean.BeanWithConstructorWithSingleLevelDependencies;
+import it.espr.injector.bean.ComplexBean;
 import it.espr.injector.bean.EmptyBean;
 import it.espr.injector.bean.EmptyBeanWithConstructor;
 import it.espr.injector.bean.SingletonBean;
+import it.espr.injector.bean.named.BeanWithNamedConstructorParameters;
+import it.espr.injector.bean.named.BeanWithNamedFields;
+import it.espr.injector.bean.named.BeanWithNamedFieldsAndConstructorParameters;
+import it.espr.injector.bean.named.InterfaceForNamedBeans;
+import it.espr.injector.bean.named.NamedEmptyBeanA;
+import it.espr.injector.bean.named.NamedEmptyBeanB;
+import it.espr.injector.bean.named.NamedSingleton;
 
 public class BeanInspectorTest {
 
-	private BeanInspector beanInspector = new BeanInspector();
+	private Binder binder = new Binder();
+
+	private BeanInspector beanInspector = new BeanInspector(binder);
 
 	@Test
 	public void whenInspectingTheSameBeanTheInspectorShouldReturnTheSameInstance() throws BeanException {
@@ -71,6 +88,104 @@ public class BeanInspectorTest {
 		assertThat(bean.constructorParameters).isNull();
 		assertThat(bean.key).isEqualTo(SingletonBean.class.getCanonicalName());
 		assertThat(bean.singleton).isTrue();
+	}
+
+	@Test
+	public void inspectBeanWithNamedFields() throws BeanException {
+		binder.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class));
+		Bean<BeanWithNamedFields> bean = beanInspector.inspect(BeanWithNamedFields.class);
+
+		assertThat(bean).isNotNull();
+		assertThat(bean.type).isEqualTo(BeanWithNamedFields.class);
+		assertThat(bean.constructorParameters).isNull();
+		assertThat(bean.key).isEqualTo(BeanWithNamedFields.class.getCanonicalName());
+		assertThat(bean.singleton).isFalse();
+
+		assertThat(bean.fields).hasSize(2);
+
+		for (Entry<Field, Bean<?>> entry : bean.fields.entrySet()) {
+			Field f = entry.getKey();
+			Bean<?> b = entry.getValue();
+
+			if (f.getName().equals("beanA")) {
+				assertThat(f.getAnnotation(Named.class).value()).isEqualTo("a");
+				assertThat(b.type.equals(NamedEmptyBeanA.class)).isTrue();
+			}
+
+			if (f.getName().equals("beanB")) {
+				assertThat(f.getAnnotation(Named.class).value()).isEqualTo("b");
+				assertThat(b.type.equals(NamedEmptyBeanB.class)).isTrue();
+			}
+		}
+	}
+
+	@Test
+	public void inspectBeanWithNamedConstructorParameters() throws BeanException {
+		binder.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class));
+		Bean<BeanWithNamedConstructorParameters> bean = beanInspector.inspect(BeanWithNamedConstructorParameters.class);
+
+		assertThat(bean).isNotNull();
+		assertThat(bean.type).isEqualTo(BeanWithNamedConstructorParameters.class);
+		assertThat(bean.constructorParameters).hasSize(3);
+		assertThat(bean.key).isEqualTo(BeanWithNamedConstructorParameters.class.getCanonicalName());
+		assertThat(bean.singleton).isFalse();
+
+		assertThat(bean.constructorParameters.get(0).type.equals(EmptyBean.class)).isTrue();
+		assertThat(bean.constructorParameters.get(1).type.equals(NamedEmptyBeanA.class)).isTrue();
+		assertThat(bean.constructorParameters.get(2).type.equals(NamedEmptyBeanB.class)).isTrue();
+	}
+
+	@Test
+	public void inspectBeanWithNamedFieldsAndConstructorParameters() throws BeanException {
+		binder.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class));
+		Bean<BeanWithNamedFieldsAndConstructorParameters> bean = beanInspector.inspect(BeanWithNamedFieldsAndConstructorParameters.class);
+
+		assertThat(bean).isNotNull();
+		assertThat(bean.type).isEqualTo(BeanWithNamedFieldsAndConstructorParameters.class);
+		assertThat(bean.constructorParameters).hasSize(2);
+		assertThat(bean.key).isEqualTo(BeanWithNamedFieldsAndConstructorParameters.class.getCanonicalName());
+		assertThat(bean.singleton).isFalse();
+
+		assertThat(bean.fields).hasSize(1);
+
+		for (Entry<Field, Bean<?>> entry : bean.fields.entrySet()) {
+			Field f = entry.getKey();
+			Bean<?> b = entry.getValue();
+
+			assertThat(f.getAnnotation(Named.class).value()).isEqualTo("a");
+			assertThat(b.type.equals(NamedEmptyBeanA.class)).isTrue();
+		}
+	}
+
+	@Test
+	public void inspectComplexBean() throws BeanException {
+		binder.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class));
+		Bean<ComplexBean> bean = beanInspector.inspect(ComplexBean.class);
+
+		assertThat(bean).isNotNull();
+		assertThat(bean.type).isEqualTo(ComplexBean.class);
+		assertThat(bean.constructorParameters).hasSize(3);
+		assertThat(bean.key).isEqualTo(ComplexBean.class.getCanonicalName());
+		assertThat(bean.singleton).isFalse();
+
+		assertThat(bean.fields).hasSize(3);
+
+		for (Entry<Field, Bean<?>> entry : bean.fields.entrySet()) {
+			Field f = entry.getKey();
+			Bean<?> b = entry.getValue();
+
+			if (f.getName().equals("beanA")) {
+				assertThat(f.getAnnotation(Named.class).value()).isEqualTo("a");
+				assertThat(b.type.equals(NamedEmptyBeanA.class)).isTrue();
+			} else if (f.getName().equals("namedSingleton")) {
+				assertThat(f.getAnnotation(Named.class).value()).isEqualTo("single");
+				assertThat(b.type.equals(NamedSingleton.class)).isTrue();
+			} else if (f.getName().equals("emptyBeanWithConstructor")) {
+				assertThat(b.type.equals(EmptyBeanWithConstructor.class)).isTrue();
+			} else {
+				Assertions.fail("Unexpected field found: '" + f.getName());
+			}
+		}
 	}
 
 }

@@ -1,7 +1,9 @@
 package it.espr.injector;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 
 public class Bean<Type> {
 
@@ -17,7 +19,10 @@ public class Bean<Type> {
 
 	public final List<Bean<?>> constructorParameters;
 
-	public Bean(String name, String key, boolean singleton, Class<Type> type, Constructor<Type> constructor, List<Bean<?>> constructorParameters) {
+	public final Map<Field, Bean<?>> fields;
+
+	public Bean(String name, String key, boolean singleton, Class<Type> type, Constructor<Type> constructor, List<Bean<?>> constructorParameters,
+			Map<Field, Bean<?>> fields) {
 		super();
 		this.name = name;
 		this.key = key;
@@ -25,6 +30,7 @@ public class Bean<Type> {
 		this.type = type;
 		this.constructor = constructor;
 		this.constructorParameters = constructorParameters;
+		this.fields = fields;
 	}
 
 	@Override
