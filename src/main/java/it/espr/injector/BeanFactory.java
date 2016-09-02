@@ -6,12 +6,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class BeanInstantiator {
+public class BeanFactory {
 
 	private Map<String, Object> cache = new HashMap<>();
 
+	@SuppressWarnings("unused")
+	private Configuration configuration;
+
+	BeanFactory(Configuration configuration) {
+		this.configuration = configuration;
+	}
+
 	@SuppressWarnings("unchecked")
-	public <Type> Type instantiate(Bean<Type> bean) {
+	public <Type> Type create(Bean<Type> bean) {
 		Type instance = null;
 		if (bean.singleton) {
 			instance = (Type) this.cache.get(bean.key);
@@ -24,7 +31,7 @@ public class BeanInstantiator {
 				} else {
 					Object[] constructorParameterInstances = new Object[bean.constructorParameters.size()];
 					for (int i = 0; i < bean.constructorParameters.size(); i++) {
-						constructorParameterInstances[i] = this.instantiate(bean.constructorParameters.get(i));
+						constructorParameterInstances[i] = this.create(bean.constructorParameters.get(i));
 					}
 					instance = bean.constructor.newInstance(constructorParameterInstances);
 				}
@@ -34,14 +41,14 @@ public class BeanInstantiator {
 					for (Entry<Field, Bean<?>> entry : bean.fields.entrySet()) {
 						Field f = entry.getKey();
 						Bean<?> b = entry.getValue();
-						
+
 						boolean resetAccessible = false;
 						if (!f.isAccessible()) {
 							f.setAccessible(true);
 							resetAccessible = true;
 						}
-						f.set(instance, this.instantiate(b));
-						
+						f.set(instance, this.create(b));
+
 						if (resetAccessible) {
 							f.setAccessible(false);
 						}

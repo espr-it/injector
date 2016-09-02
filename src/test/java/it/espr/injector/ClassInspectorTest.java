@@ -25,23 +25,23 @@ import it.espr.injector.bean.named.NamedEmptyBeanA;
 import it.espr.injector.bean.named.NamedEmptyBeanB;
 import it.espr.injector.bean.named.NamedSingleton;
 
-public class BeanInspectorTest {
+public class ClassInspectorTest {
 
-	private Binder binder = new Binder();
+	private Configuration configuration = new Configuration();
 
-	private BeanInspector beanInspector = new BeanInspector(binder);
+	private ClassInspector classInspector = new ClassInspector(configuration);
 
 	@Test
 	public void whenInspectingTheSameBeanTheInspectorShouldReturnTheSameInstance() throws BeanException {
-		Bean<EmptyBean> emptyBean1 = beanInspector.inspect(EmptyBean.class);
-		Bean<EmptyBean> emptyBean2 = beanInspector.inspect(EmptyBean.class);
+		Bean<EmptyBean> emptyBean1 = classInspector.inspect(EmptyBean.class);
+		Bean<EmptyBean> emptyBean2 = classInspector.inspect(EmptyBean.class);
 
 		assertThat(emptyBean1).isSameAs(emptyBean2);
 	}
 
 	@Test
 	public void inspectEmptyBean() throws BeanException {
-		Bean<EmptyBean> emptyBean = beanInspector.inspect(EmptyBean.class);
+		Bean<EmptyBean> emptyBean = classInspector.inspect(EmptyBean.class);
 
 		assertThat(emptyBean).isNotNull();
 		assertThat(emptyBean.type).isEqualTo(EmptyBean.class);
@@ -51,7 +51,7 @@ public class BeanInspectorTest {
 
 	@Test
 	public void inspectEmptyBeanWithConstructor() throws BeanException {
-		Bean<EmptyBeanWithConstructor> emptyBeanWithConstructor = beanInspector.inspect(EmptyBeanWithConstructor.class);
+		Bean<EmptyBeanWithConstructor> emptyBeanWithConstructor = classInspector.inspect(EmptyBeanWithConstructor.class);
 
 		assertThat(emptyBeanWithConstructor).isNotNull();
 		assertThat(emptyBeanWithConstructor.type).isEqualTo(EmptyBeanWithConstructor.class);
@@ -61,7 +61,7 @@ public class BeanInspectorTest {
 
 	@Test
 	public void inspectBeanWithConstructorWithSingleLevelDependencies() throws BeanException {
-		Bean<BeanWithConstructorWithSingleLevelDependencies> bean = beanInspector.inspect(BeanWithConstructorWithSingleLevelDependencies.class);
+		Bean<BeanWithConstructorWithSingleLevelDependencies> bean = classInspector.inspect(BeanWithConstructorWithSingleLevelDependencies.class);
 
 		assertThat(bean).isNotNull();
 		assertThat(bean.type).isEqualTo(BeanWithConstructorWithSingleLevelDependencies.class);
@@ -71,7 +71,7 @@ public class BeanInspectorTest {
 
 	@Test
 	public void inspectBeanWithConstructorWithMultipleLevelDependencies() throws BeanException {
-		Bean<BeanWithConstructorWithMultipleLevelDependencies> bean = beanInspector.inspect(BeanWithConstructorWithMultipleLevelDependencies.class);
+		Bean<BeanWithConstructorWithMultipleLevelDependencies> bean = classInspector.inspect(BeanWithConstructorWithMultipleLevelDependencies.class);
 
 		assertThat(bean).isNotNull();
 		assertThat(bean.type).isEqualTo(BeanWithConstructorWithMultipleLevelDependencies.class);
@@ -81,7 +81,7 @@ public class BeanInspectorTest {
 
 	@Test
 	public void inspectSingletonBean() throws BeanException {
-		Bean<SingletonBean> bean = beanInspector.inspect(SingletonBean.class);
+		Bean<SingletonBean> bean = classInspector.inspect(SingletonBean.class);
 
 		assertThat(bean).isNotNull();
 		assertThat(bean.type).isEqualTo(SingletonBean.class);
@@ -92,8 +92,8 @@ public class BeanInspectorTest {
 
 	@Test
 	public void inspectBeanWithNamedFields() throws BeanException {
-		binder.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class));
-		Bean<BeanWithNamedFields> bean = beanInspector.inspect(BeanWithNamedFields.class);
+		configuration.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class));
+		Bean<BeanWithNamedFields> bean = classInspector.inspect(BeanWithNamedFields.class);
 
 		assertThat(bean).isNotNull();
 		assertThat(bean.type).isEqualTo(BeanWithNamedFields.class);
@@ -121,8 +121,8 @@ public class BeanInspectorTest {
 
 	@Test
 	public void inspectBeanWithNamedConstructorParameters() throws BeanException {
-		binder.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class));
-		Bean<BeanWithNamedConstructorParameters> bean = beanInspector.inspect(BeanWithNamedConstructorParameters.class);
+		configuration.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class));
+		Bean<BeanWithNamedConstructorParameters> bean = classInspector.inspect(BeanWithNamedConstructorParameters.class);
 
 		assertThat(bean).isNotNull();
 		assertThat(bean.type).isEqualTo(BeanWithNamedConstructorParameters.class);
@@ -137,8 +137,8 @@ public class BeanInspectorTest {
 
 	@Test
 	public void inspectBeanWithNamedFieldsAndConstructorParameters() throws BeanException {
-		binder.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class));
-		Bean<BeanWithNamedFieldsAndConstructorParameters> bean = beanInspector.inspect(BeanWithNamedFieldsAndConstructorParameters.class);
+		configuration.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class));
+		Bean<BeanWithNamedFieldsAndConstructorParameters> bean = classInspector.inspect(BeanWithNamedFieldsAndConstructorParameters.class);
 
 		assertThat(bean).isNotNull();
 		assertThat(bean.type).isEqualTo(BeanWithNamedFieldsAndConstructorParameters.class);
@@ -159,8 +159,8 @@ public class BeanInspectorTest {
 
 	@Test
 	public void inspectComplexBean() throws BeanException {
-		binder.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class));
-		Bean<ComplexBean> bean = beanInspector.inspect(ComplexBean.class);
+		configuration.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class));
+		Bean<ComplexBean> bean = classInspector.inspect(ComplexBean.class);
 
 		assertThat(bean).isNotNull();
 		assertThat(bean.type).isEqualTo(ComplexBean.class);

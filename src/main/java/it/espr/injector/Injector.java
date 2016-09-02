@@ -1,7 +1,5 @@
 package it.espr.injector;
 
-import java.util.Arrays;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,28 +7,37 @@ public class Injector {
 
 	private static final Logger log = LoggerFactory.getLogger(Injector.class);
 
-	private static final Injector injector = new Injector();
+	private static Injector injector;
 
-	private BeanInstantiator beanInstantiator = new BeanInstantiator();
+	private BeanFactory beanFactory;
 
-	private Binder binder = new Binder();
+	private Configuration configuration = new Configuration();
 
-	private BeanInspector beanInspector = new BeanInspector(binder);
+	private ClassInspector classInspector;
 
-	public static Injector get() {
-		return injector;
+	public void configure(Configuration... configurations) {
+		this.configuration = new Configuration();
+		for (Configuration configuration : configurations) {
+			this.configuration.bindings.putAll(configuration.bindings);
+		}
+		this.beanFactory = new BeanFactory(this.configuration);
+		this.classInspector = new ClassInspector(this.configuration);
 	}
 
-	@SuppressWarnings("unchecked")
-	public <I> void bind(Class<I> i, Class<? extends I>... c) {
-		this.binder.bind(i, Arrays.asList(c));
+	public static Injector get(Configuration... configurations) {
+		if (injector == null || (configurations != null && configurations.length > 0)) {
+			// create and configure new Injector
+			injector = new Injector();
+			injector.configure(configurations);
+		}
+		return injector;
 	}
 
 	public <Type> Type get(Class<Type> type) {
 		Type instance = null;
 		try {
-			Bean<Type> bean = beanInspector.inspect(type);
-			instance = beanInstantiator.instantiate(bean);
+			Bean<Type> bean = classInspector.inspect(type);
+			instance = beanFactory.create(bean);
 		} catch (Exception e) {
 			log.error("Problem when getting instance of {}", type, e);
 		}

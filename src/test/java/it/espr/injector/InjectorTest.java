@@ -13,12 +13,12 @@ public class InjectorTest {
 
 	@Test
 	public void whenGetSimpleclassWithoutAnnotationThenAlwaysReturnPrototype() {
-		EmptyBean simpleBean1 = injector.get(EmptyBean.class);
-		EmptyBean simpleBean2 = injector.get(EmptyBean.class);
+		EmptyBean emptyBean1 = injector.get(EmptyBean.class);
+		EmptyBean emptyBean2 = injector.get(EmptyBean.class);
 
-		assertThat(simpleBean1).isNotNull();
-		assertThat(simpleBean2).isNotNull();
-		assertThat(simpleBean1).isNotSameAs(simpleBean2);
+		assertThat(emptyBean1).isNotNull();
+		assertThat(emptyBean2).isNotNull();
+		assertThat(emptyBean1).isNotSameAs(emptyBean2);
 	}
 
 	@Test

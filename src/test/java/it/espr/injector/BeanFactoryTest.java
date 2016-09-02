@@ -17,35 +17,35 @@ import it.espr.injector.bean.named.NamedEmptyBeanA;
 import it.espr.injector.bean.named.NamedEmptyBeanB;
 import it.espr.injector.bean.named.NamedSingleton;
 
-public class BeanInstantiatorTest {
+public class BeanFactoryTest {
 
-	private BeanInstantiator beanInstantiator = new BeanInstantiator();
+	private Configuration configuration = new Configuration();
 
-	private Binder binder = new Binder();
+	private BeanFactory beanFactory = new BeanFactory(this.configuration);
 
-	private BeanInspector beanInspector = new BeanInspector(binder);
+	private ClassInspector beanInspector = new ClassInspector(this.configuration);
 
 	@Test
 	public void instantiateEmptyBean() throws BeanException {
-		EmptyBean bean = beanInstantiator.instantiate(beanInspector.inspect(EmptyBean.class));
+		EmptyBean bean = beanFactory.create(beanInspector.inspect(EmptyBean.class));
 		assertThat(bean).isNotNull();
 	}
 
 	@Test
 	public void instantiateEmptyBeanWithConstructor() throws BeanException {
-		EmptyBeanWithConstructor bean = beanInstantiator.instantiate(beanInspector.inspect(EmptyBeanWithConstructor.class));
+		EmptyBeanWithConstructor bean = beanFactory.create(beanInspector.inspect(EmptyBeanWithConstructor.class));
 		assertThat(bean).isNotNull();
 	}
 
 	@Test
 	public void instantiateBeanWithConstructorWithSingleLevelDependencies() throws BeanException {
-		BeanWithConstructorWithSingleLevelDependencies bean = beanInstantiator.instantiate(beanInspector.inspect(BeanWithConstructorWithSingleLevelDependencies.class));
+		BeanWithConstructorWithSingleLevelDependencies bean = beanFactory.create(beanInspector.inspect(BeanWithConstructorWithSingleLevelDependencies.class));
 		assertThat(bean).isNotNull();
 	}
 
 	@Test
 	public void BeanWithConstructorWithMultipleLevelDependencies() throws BeanException {
-		BeanWithConstructorWithMultipleLevelDependencies bean = beanInstantiator.instantiate(beanInspector.inspect(BeanWithConstructorWithMultipleLevelDependencies.class));
+		BeanWithConstructorWithMultipleLevelDependencies bean = beanFactory.create(beanInspector.inspect(BeanWithConstructorWithMultipleLevelDependencies.class));
 		assertThat(bean).isNotNull();
 	}
 
@@ -53,8 +53,8 @@ public class BeanInstantiatorTest {
 	public void whenInstantiatingSignletonBeanAlwaysReturnSameInstance() throws BeanException {
 		Bean<SingletonBean> singletonBean = beanInspector.inspect(SingletonBean.class);
 
-		SingletonBean singleton1 = beanInstantiator.instantiate(singletonBean);
-		SingletonBean singleton2 = beanInstantiator.instantiate(singletonBean);
+		SingletonBean singleton1 = beanFactory.create(singletonBean);
+		SingletonBean singleton2 = beanFactory.create(singletonBean);
 		assertThat(singleton1).isSameAs(singleton2);
 	}
 
@@ -62,18 +62,18 @@ public class BeanInstantiatorTest {
 	public void instantiateBeanWithMultipleDependenciesAndAnnotations() throws BeanException {
 		Bean<SingletonBean> singletonBean = beanInspector.inspect(SingletonBean.class);
 
-		SingletonBean singleton1 = beanInstantiator.instantiate(singletonBean);
-		SingletonBean singleton2 = beanInstantiator.instantiate(singletonBean);
+		SingletonBean singleton1 = beanFactory.create(singletonBean);
+		SingletonBean singleton2 = beanFactory.create(singletonBean);
 		assertThat(singleton1).isSameAs(singleton2);
 	}
 
 	@Test
 	public void instantiateComplexBean() throws BeanException {
-		binder.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class));
+		configuration.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class));
 		Bean<ComplexBean> complexBean = beanInspector.inspect(ComplexBean.class);
 
-		ComplexBean complexBean1 = beanInstantiator.instantiate(complexBean);
-		ComplexBean complexBean2 = beanInstantiator.instantiate(complexBean);
+		ComplexBean complexBean1 = beanFactory.create(complexBean);
+		ComplexBean complexBean2 = beanFactory.create(complexBean);
 		assertThat(complexBean1).isNotSameAs(complexBean2);
 		
 		assertDifferent(complexBean1.getBeanA(), complexBean2.getBeanA());

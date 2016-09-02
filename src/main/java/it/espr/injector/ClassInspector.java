@@ -18,13 +18,13 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-public class BeanInspector {
+public class ClassInspector {
 
-	private Binder binder;
+	private Configuration configuration;
 
-	public BeanInspector(Binder binder) {
+	ClassInspector(Configuration configuration) {
 		super();
-		this.binder = binder;
+		this.configuration = configuration;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -50,7 +50,7 @@ public class BeanInspector {
 		Bean<Type> bean = this.cache.get(type, named);
 
 		if (bean == null) {
-			if (this.binder.has(type)) {
+			if (this.configuration.isBound(type)) {
 				bean = this.inspectBindings(type, named);
 			} else {
 				String name = this.inspectName(type);
@@ -73,7 +73,7 @@ public class BeanInspector {
 	}
 
 	public <Type> Bean<Type> inspectBindings(Class<Type> type, String named) throws BeanException {
-		Collection<Class<Type>> candidates = this.binder.get(type);
+		Collection<Class<Type>> candidates = this.configuration.getBindings(type);
 		List<Bean<Type>> candidateBeans = new ArrayList<>();
 		for (Class<Type> candidate : candidates) {
 			Bean<Type> candidateBean = this.inspect(candidate, named);
