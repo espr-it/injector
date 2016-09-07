@@ -26,8 +26,8 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git://github.com/espr-it/injector.git</connection>
-    <developerConnection>scm:git:ssh://github.com:espr-it/injector.git</developerConnection>
+    <connection>scm:git:git@github.com/espr-it/injector.git</connection>
+    <developerConnection>scm:git:git@github.com:espr-it/injector.git</developerConnection>
     <url>http://github.com/espr-it/injector/tree/master</url>
    </scm>
 
