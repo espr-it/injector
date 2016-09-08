@@ -19,7 +19,7 @@ public class Configuration {
 		}
 
 		if (!this.bindings.containsKey(i)) {
-			this.bindings.put(i, new ArrayList<>());
+			this.bindings.put(i, new ArrayList<Class<?>>());
 		}
 		this.bindings.get(i).addAll(classes);
 	}
