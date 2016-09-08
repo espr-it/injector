@@ -3,7 +3,7 @@
 
 	<groupId>it.espr</groupId>
 	<artifactId>esprit-injector</artifactId>
-	<version>0.0.4-SNAPSHOT</version>
+	<version>0.0.5-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>esprit-injector</name>
@@ -30,7 +30,8 @@
     <connection>scm:git:git@github.com/espr-it/injector.git</connection>
     <developerConnection>scm:git:git@github.com:espr-it/injector.git</developerConnection>
     <url>http://github.com/espr-it/injector/tree/master</url>
-   </scm>
+     <tag>HEAD</tag>
+  </scm>
 
 	<distributionManagement>
 	  <snapshotRepository>
@@ -60,6 +61,11 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.5.3</version>
+      </plugin>
 	    <plugin>
 	      <groupId>org.sonatype.plugins</groupId>
 	      <artifactId>nexus-staging-maven-plugin</artifactId>
