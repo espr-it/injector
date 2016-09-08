@@ -3,7 +3,7 @@
 
 	<groupId>it.espr</groupId>
 	<artifactId>esprit-injector</artifactId>
-	<version>0.0.5-SNAPSHOT</version>
+	<version>0.0.5</version>
 	<packaging>jar</packaging>
 
 	<name>esprit-injector</name>
@@ -30,7 +30,7 @@
     <connection>scm:git:git@github.com/espr-it/injector.git</connection>
     <developerConnection>scm:git:git@github.com:espr-it/injector.git</developerConnection>
     <url>http://github.com/espr-it/injector/tree/master</url>
-     <tag>HEAD</tag>
+     <tag>esprit-injector-0.0.5</tag>
   </scm>
 
 	<distributionManagement>
