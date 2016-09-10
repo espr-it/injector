@@ -2,13 +2,11 @@ package it.espr.injector;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -180,20 +178,34 @@ public class ClassInspector {
 	@SuppressWarnings("unchecked")
 	public <Type> Constructor<Type> inspectConstructors(Class<Type> type) throws BeanException {
 		List<Constructor<?>> constructors = Arrays.asList(type.getDeclaredConstructors());
-		Iterator<Constructor<?>> iterator = constructors.iterator();
-		while (iterator.hasNext()) {
-			Constructor<?> constructor = iterator.next();
-			List<Integer> modifiers = Arrays.asList(constructor.getModifiers());
-			for (Integer modifier : modifiers) {
-				if (Modifier.isPublic(modifier)) {
-					break;
-				}
-				iterator.remove();
+		List<Constructor<?>> candidates = new ArrayList<>();
+
+		for (Constructor<?> constructor : constructors) {
+			if (utils.isPublic(constructor)) {
+				candidates.add(constructor);
 			}
 		}
-		if (constructors.size() != 1) {
-			throw new BeanException("Found '" + constructors.size() + "' valid constructors - can resolve as a bean");
+
+		if (candidates.size() == 0) {
+			throw new BeanException("Couldn't find any valid constructor for '" + type + "'");
 		}
-		return (Constructor<Type>) constructors.get(0);
+
+		Constructor<Type> found = null;
+		if (constructors.size() > 1) {
+			for (Constructor<?> constructor : constructors) {
+				if (constructor.getParameterTypes().length == 0) {
+					found = (Constructor<Type>) constructor;
+					break;
+				}
+			}
+		} else {
+			found = (Constructor<Type>) constructors.get(0);
+		}
+
+		if (found == null) {
+			throw new BeanException("Found '" + constructors.size() + "' valid parametric constructors only, not sure which one to use (help me with @Inject)");
+		}
+
+		return found;
 	}
 }
