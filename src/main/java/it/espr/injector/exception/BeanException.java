@@ -1,4 +1,4 @@
-package it.espr.injector;
+package it.espr.injector.exception;
 
 public class BeanException extends Exception {
 

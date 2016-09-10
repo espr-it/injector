@@ -16,6 +16,7 @@ import it.espr.injector.bean.named.InterfaceForNamedBeans;
 import it.espr.injector.bean.named.NamedEmptyBeanA;
 import it.espr.injector.bean.named.NamedEmptyBeanB;
 import it.espr.injector.bean.named.NamedSingleton;
+import it.espr.injector.exception.BeanException;
 
 public class BeanFactoryTest {
 

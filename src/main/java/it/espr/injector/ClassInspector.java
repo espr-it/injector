@@ -7,17 +7,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import it.espr.injector.exception.BeanException;
+import it.espr.injector.exception.CircularDependencyExpection;
+
 public class ClassInspector {
+
+	private static final Logger log = LoggerFactory.getLogger(ClassInspector.class);
 
 	private Configuration configuration;
 
@@ -45,10 +55,22 @@ public class ClassInspector {
 	private MyTypeSafeMap cache = new MyTypeSafeMap();
 
 	public <Type> Bean<Type> inspect(Class<Type> type) throws BeanException {
-		return this.inspect(type, null);
+		return this.inspect(type, new HashSet<Class<?>>());
+	}
+
+	private <Type> Bean<Type> inspect(Class<Type> type, Set<Class<?>> stack) throws BeanException {
+		return this.inspect(type, null, stack);
 	}
 
 	public <Type> Bean<Type> inspect(Class<Type> type, String named) throws BeanException {
+		return this.inspect(type, named, new HashSet<Class<?>>());
+	}
+
+	private <Type> Bean<Type> inspect(Class<Type> type, String named, Set<Class<?>> stack) throws BeanException {
+		if (!stack.add(type)) {
+			log.error("Circular dependency for {} - current dependency stack is: {}", type, stack);
+			throw new CircularDependencyExpection("Circular dependency detected: '" + type);
+		}
 		Bean<Type> bean = this.cache.get(type, named);
 
 		if (bean == null) {
@@ -60,19 +82,21 @@ public class ClassInspector {
 				String name = this.inspectName(type);
 
 				if (!utils.isEmpty(named) && (utils.isEmpty(name) || !named.equals(name))) {
+					stack.remove(type);
 					return null;
 				}
 
 				Constructor<Type> constructor = inspectConstructors(type);
 				String key = utils.key(name, type);
 				boolean singleton = this.inspectSingleton(type);
-				List<Bean<?>> constructorParameters = inspectConstructorParameters(constructor);
+				List<Bean<?>> constructorParameters = inspectConstructorParameters(constructor, stack);
 				Map<Field, Bean<?>> fields = this.inspectFields(type);
 
 				bean = new Bean<Type>(name, key, singleton, type, constructor, constructorParameters, fields);
 			}
 			this.cache.put(type, bean);
 		}
+		stack.remove(type);
 		return bean;
 	}
 
@@ -135,7 +159,7 @@ public class ClassInspector {
 		return fields.isEmpty() ? null : fields;
 	}
 
-	private List<Bean<?>> inspectConstructorParameters(Constructor<?> constructor) throws BeanException {
+	private List<Bean<?>> inspectConstructorParameters(Constructor<?> constructor, Set<Class<?>> stack) throws BeanException {
 		List<Bean<?>> constructorParametersBeans = null;
 		Class<?>[] constructorParameters = constructor.getParameterTypes();
 		if (constructorParameters.length != 0) {
@@ -143,9 +167,10 @@ public class ClassInspector {
 			for (int index = 0; index < constructorParameters.length; index++) {
 				try {
 					String named = utils.getAnnotationValue(Named.class, constructor.getParameterAnnotations()[index]);
-					constructorParametersBeans.add(this.inspect(constructorParameters[index], named));
+					constructorParametersBeans.add(this.inspect(constructorParameters[index], named, stack));
 				} catch (BeanException e) {
-					throw new BeanException("Problem when inspecting '" + index + "' constructor parameter of type '" + constructorParameters[index] + "'");
+					log.error("Problem when inspecting '{}.' constructor parameter of type '{}'", index + 1, constructorParameters[index]);
+					throw e;
 				}
 			}
 		}

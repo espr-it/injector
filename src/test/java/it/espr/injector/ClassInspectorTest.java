@@ -17,6 +17,7 @@ import it.espr.injector.bean.ComplexBean;
 import it.espr.injector.bean.EmptyBean;
 import it.espr.injector.bean.EmptyBeanWithConstructor;
 import it.espr.injector.bean.SingletonBean;
+import it.espr.injector.bean.circular.CircularBeanA;
 import it.espr.injector.bean.named.BeanWithNamedConstructorParameters;
 import it.espr.injector.bean.named.BeanWithNamedFields;
 import it.espr.injector.bean.named.BeanWithNamedFieldsAndConstructorParameters;
@@ -24,6 +25,8 @@ import it.espr.injector.bean.named.InterfaceForNamedBeans;
 import it.espr.injector.bean.named.NamedEmptyBeanA;
 import it.espr.injector.bean.named.NamedEmptyBeanB;
 import it.espr.injector.bean.named.NamedSingleton;
+import it.espr.injector.exception.BeanException;
+import it.espr.injector.exception.CircularDependencyExpection;
 
 public class ClassInspectorTest {
 
@@ -77,6 +80,11 @@ public class ClassInspectorTest {
 		assertThat(bean.type).isEqualTo(BeanWithConstructorWithMultipleLevelDependencies.class);
 		assertThat(bean.constructorParameters).hasSize(3);
 		assertThat(bean.key).isEqualTo(BeanWithConstructorWithMultipleLevelDependencies.class.getCanonicalName());
+	}
+
+	@Test(expected = CircularDependencyExpection.class)
+	public void whenCircularDependencyDetectedThrowException() throws BeanException {
+		Bean<CircularBeanA> bean = classInspector.inspect(CircularBeanA.class);
 	}
 
 	@Test
