@@ -10,19 +10,19 @@ import javax.inject.Named;
 
 public class Utils {
 
-	public String key(String name, Class<?> clazz) {
+	public static String key(String name, Class<?> clazz) {
 		return (name == null ? "" : name + "-") + clazz.getCanonicalName();
 	}
 
-	public String key(String name, Object instance) {
+	public static String key(String name, Object instance) {
 		return key(name, instance.getClass());
 	}
 
-	public boolean isEmpty(String value) {
+	public static boolean isEmpty(String value) {
 		return value == null || value.trim().equals("");
 	}
 
-	public String getAnnotationValue(Class<? extends Annotation> annotationClass, Annotation[] annotations) {
+	public static String getAnnotationValue(Class<? extends Annotation> annotationClass, Annotation[] annotations) {
 		String value = null;
 		for (Annotation annotation : annotations) {
 			if (annotation.annotationType() == annotationClass) {
@@ -45,7 +45,7 @@ public class Utils {
 		}
 	}
 
-	public boolean isPublic(Member member) {
+	public static boolean isPublic(Member member) {
 		List<Integer> modifiers = Arrays.asList(member.getModifiers());
 		for (Integer modifier : modifiers) {
 			if (Modifier.isPublic(modifier)) {

@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import it.espr.injector.bean.BeanWithConfiguredFields;
@@ -15,8 +16,14 @@ import it.espr.injector.bean.SingletonBean;
 
 public class InjectorTest {
 
-	Injector injector = Injector.get();
-
+	private Injector injector;
+	
+	@Before
+	public void setUp() {
+		injector = Injector.get(new Configuration() {
+		});
+	}
+	
 	@Test
 	public void whenGetSimpleclassWithoutAnnotationThenAlwaysReturnPrototype() {
 		EmptyBean emptyBean1 = injector.get(EmptyBean.class);
@@ -39,20 +46,26 @@ public class InjectorTest {
 
 	@Test
 	public void whenConfigurationDefinedInstancesAreInjected() {
-		Configuration configuration = new Configuration();
-		Map<String, String> mapA = new LinkedHashMap<>();
-		Map<String, String> mapB = new LinkedHashMap<>();
-		configuration.add("map a", mapA);
-		configuration.add("map b", mapB);
-		List<Integer> listA = new ArrayList<>();
-		List<Integer> listB = new ArrayList<>();
-		configuration.add("list a", listA);
-		configuration.add("list b", listB);
-		EmptyBean beanA = new EmptyBean();
-		EmptyBean beanB = new EmptyBean();
-		configuration.add("bean a", beanA);
-		configuration.add("bean b", beanB);
-		injector = Injector.get(configuration);
+		final Map<String, String> mapA = new LinkedHashMap<>();
+		final Map<String, String> mapB = new LinkedHashMap<>();
+		final List<Integer> listA = new ArrayList<>();
+		final List<Integer> listB = new ArrayList<>();
+		final EmptyBean beanA = new EmptyBean();
+		final EmptyBean beanB = new EmptyBean();
+
+		Configuration configuration = new Configuration() {
+			@Override
+			protected void configure() {
+				this.bind(mapA).named("map a");
+				this.bind(mapB).named("map b");
+				this.bind(listA).named("list a");
+				this.bind(listB).named("list b");
+				this.bind(beanA).named("bean a");
+				this.bind(beanB).named("bean b");
+			}
+		};
+
+		Injector injector = Injector.get(configuration);
 
 		BeanWithConfiguredFields bean1 = injector.get(BeanWithConfiguredFields.class);
 		BeanWithConfiguredFields bean2 = injector.get(BeanWithConfiguredFields.class);
@@ -60,7 +73,7 @@ public class InjectorTest {
 		assertThat(bean1).isNotNull();
 		assertThat(bean2).isNotNull();
 		assertThat(bean1).isNotSameAs(bean2);
-		
+
 		assertThat(bean1.getMapA()).isSameAs(mapA);
 		assertThat(bean1.getMapB()).isSameAs(mapB);
 		assertThat(bean1.getListA()).isSameAs(listA);

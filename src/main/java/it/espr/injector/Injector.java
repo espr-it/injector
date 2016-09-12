@@ -11,25 +11,32 @@ public class Injector {
 
 	private BeanFactory beanFactory;
 
-	private Configuration configuration = new Configuration();
+	private Configuration configuration;
 
 	private ClassInspector classInspector;
 
-	public void configure(Configuration... configurations) {
-		this.configuration = new Configuration();
-		for (Configuration configuration : configurations) {
-			this.configuration.bindings.putAll(configuration.bindings);
-			this.configuration.instances.putAll(configuration.instances);
+	public void configure(Configuration configuration) {
+		if (configuration == null) {
+			this.configuration = new Configuration() {
+				// empty configuration
+			};
+		} else {
+			this.configuration = configuration;
 		}
-		this.beanFactory = new BeanFactory(this.configuration);
-		this.classInspector = new ClassInspector(this.configuration);
+		this.configuration.initialise();
+		this.classInspector = new ClassInspector(this.configuration.bindings);
+		this.beanFactory = new BeanFactory();
 	}
 
-	public static Injector get(Configuration... configurations) {
-		if (injector == null || (configurations != null && configurations.length > 0)) {
+	public static Injector get() {
+		return Injector.get((Configuration) null);
+	}
+
+	public static Injector get(Configuration configuration) {
+		if (injector == null || configuration != null) {
 			// create and configure new Injector
 			injector = new Injector();
-			injector.configure(configurations);
+			injector.configure(configuration);
 		}
 		return injector;
 	}

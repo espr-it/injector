@@ -21,8 +21,20 @@ public class Bean<Type> {
 
 	public final Map<Field, Bean<?>> fields;
 
-	public Bean(String name, String key, boolean singleton, Class<Type> type, Constructor<Type> constructor, List<Bean<?>> constructorParameters,
-			Map<Field, Bean<?>> fields) {
+	public final Type instance;
+
+	public Bean(Type instance, String name, String key) {
+		this.instance = instance;
+		this.name = name;
+		this.key = key;
+		this.singleton = true;
+		this.type = null;
+		this.constructor = null;
+		this.constructorParameters = null;
+		this.fields = null;
+	}
+
+	public Bean(String name, String key, boolean singleton, Class<Type> type, Constructor<Type> constructor, List<Bean<?>> constructorParameters, Map<Field, Bean<?>> fields) {
 		super();
 		this.name = name;
 		this.key = key;
@@ -31,6 +43,7 @@ public class Bean<Type> {
 		this.constructor = constructor;
 		this.constructorParameters = constructorParameters;
 		this.fields = fields;
+		this.instance = null;
 	}
 
 	@Override

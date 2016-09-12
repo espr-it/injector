@@ -3,7 +3,6 @@ package it.espr.injector;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Map.Entry;
 
 import javax.inject.Named;
@@ -30,9 +29,10 @@ import it.espr.injector.exception.CircularDependencyExpection;
 
 public class ClassInspectorTest {
 
-	private Configuration configuration = new Configuration();
+	private Configuration configuration = new Configuration() {
+	};
 
-	private ClassInspector classInspector = new ClassInspector(configuration);
+	private ClassInspector classInspector = new ClassInspector(configuration.bindings);
 
 	@Test
 	public void whenInspectingTheSameBeanTheInspectorShouldReturnTheSameInstance() throws BeanException {
@@ -84,7 +84,7 @@ public class ClassInspectorTest {
 
 	@Test(expected = CircularDependencyExpection.class)
 	public void whenCircularDependencyDetectedThrowException() throws BeanException {
-		Bean<CircularBeanA> bean = classInspector.inspect(CircularBeanA.class);
+		classInspector.inspect(CircularBeanA.class);
 	}
 
 	@Test
@@ -100,7 +100,7 @@ public class ClassInspectorTest {
 
 	@Test
 	public void inspectBeanWithNamedFields() throws BeanException {
-		configuration.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class));
+		configuration.bind(InterfaceForNamedBeans.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class);
 		Bean<BeanWithNamedFields> bean = classInspector.inspect(BeanWithNamedFields.class);
 
 		assertThat(bean).isNotNull();
@@ -129,7 +129,16 @@ public class ClassInspectorTest {
 
 	@Test
 	public void inspectBeanWithNamedConstructorParameters() throws BeanException {
-		configuration.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class));
+		Configuration configuration = new Configuration() {
+			@Override
+			protected void configure() {
+				this.bind(InterfaceForNamedBeans.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class);
+			}
+		};
+		configuration.configure();
+
+		ClassInspector classInspector = new ClassInspector(configuration.bindings);
+
 		Bean<BeanWithNamedConstructorParameters> bean = classInspector.inspect(BeanWithNamedConstructorParameters.class);
 
 		assertThat(bean).isNotNull();
@@ -145,7 +154,7 @@ public class ClassInspectorTest {
 
 	@Test
 	public void inspectBeanWithNamedFieldsAndConstructorParameters() throws BeanException {
-		configuration.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class));
+		configuration.bind(InterfaceForNamedBeans.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class);
 		Bean<BeanWithNamedFieldsAndConstructorParameters> bean = classInspector.inspect(BeanWithNamedFieldsAndConstructorParameters.class);
 
 		assertThat(bean).isNotNull();
@@ -167,7 +176,7 @@ public class ClassInspectorTest {
 
 	@Test
 	public void inspectComplexBean() throws BeanException {
-		configuration.bind(InterfaceForNamedBeans.class, Arrays.asList(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class));
+		configuration.bind(InterfaceForNamedBeans.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class);
 		Bean<ComplexBean> bean = classInspector.inspect(ComplexBean.class);
 
 		assertThat(bean).isNotNull();

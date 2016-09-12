@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -20,6 +19,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import it.espr.injector.Configuration.Bindings;
 import it.espr.injector.exception.BeanException;
 import it.espr.injector.exception.CircularDependencyExpection;
 
@@ -27,14 +27,10 @@ public class ClassInspector {
 
 	private static final Logger log = LoggerFactory.getLogger(ClassInspector.class);
 
-	private Configuration configuration;
+	private Bindings bindings;
 
-	private Utils utils;
-
-	ClassInspector(Configuration configuration) {
-		super();
-		this.configuration = configuration;
-		this.utils = new Utils();
+	ClassInspector(Bindings bindings) {
+		this.bindings = bindings;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -42,11 +38,11 @@ public class ClassInspector {
 		private Map<String, Bean<?>> map = new HashMap<>();
 
 		public <Type> void put(Class<Type> type, Bean<Type> value) {
-			map.put(utils.key(value.name, type), value);
+			map.put(Utils.key(value.name, type), value);
 		}
 
 		public <Type> Bean<Type> get(Class<Type> type, String name) {
-			return (Bean<Type>) map.get(utils.key(name, type));
+			return (Bean<Type>) map.get(Utils.key(name, type));
 		}
 	}
 
@@ -64,6 +60,7 @@ public class ClassInspector {
 		return this.inspect(type, named, new HashSet<Class<?>>());
 	}
 
+	@SuppressWarnings("unchecked")
 	private <Type> Bean<Type> inspect(Class<Type> type, String named, Set<Class<?>> stack) throws BeanException {
 		if (!stack.add(type)) {
 			log.error("Circular dependency for {} - current dependency stack is: {}", type, stack);
@@ -72,20 +69,18 @@ public class ClassInspector {
 		Bean<Type> bean = this.cache.get(type, named);
 
 		if (bean == null) {
-			if (this.configuration.instances.containsKey(utils.key(named, type))) {
-				bean = new Bean<>(named, utils.key(named, type), true, type, null, null, null);
-			} else if (this.configuration.isBound(type)) {
-				bean = this.inspectBindings(type, named);
+			if (this.bindings.has(named, type)) {
+				bean = (Bean<Type>) this.inspectBindings(type, named);
 			} else {
 				String name = this.inspectName(type);
 
-				if (!utils.isEmpty(named) && (utils.isEmpty(name) || !named.equals(name))) {
+				if (!Utils.isEmpty(named) && (Utils.isEmpty(name) || !named.equals(name))) {
 					stack.remove(type);
 					return null;
 				}
 
 				Constructor<Type> constructor = inspectConstructors(type);
-				String key = utils.key(name, type);
+				String key = Utils.key(name, type);
 				boolean singleton = this.inspectSingleton(type);
 				List<Bean<?>> constructorParameters = inspectConstructorParameters(constructor, stack);
 				Map<Field, Bean<?>> fields = this.inspectFields(type);
@@ -98,19 +93,27 @@ public class ClassInspector {
 		return bean;
 	}
 
-	public <Type> Bean<Type> inspectBindings(Class<Type> type, String named) throws BeanException {
-		Collection<Class<Type>> candidates = this.configuration.getBindings(type);
-		List<Bean<Type>> candidateBeans = new ArrayList<>();
-		for (Class<Type> candidate : candidates) {
-			Bean<Type> candidateBean = this.inspect(candidate, named);
-			if (candidateBean != null) {
-				candidateBeans.add(candidateBean);
+	@SuppressWarnings("unchecked")
+	public <Type> Bean<? extends Type> inspectBindings(Class<Type> type, String named) throws BeanException {
+		Object binding = this.bindings.get(named, type);
+		if (binding instanceof Class) {
+			return this.inspect((Class<? extends Type>) binding, named);
+		} else if (binding instanceof List) {
+			List<Object> bindingList = (List<Object>) binding;
+			for (int i = 0; i < bindingList.size(); i++) {
+				if (bindingList.get(i) instanceof Class<?>) {
+					bindingList.set(i, this.inspect((Class<Type>) bindingList.get(i)));
+				}
+			}
+		} else if (binding instanceof Map) {
+			Map<Object, Object> bindingMap = (Map<Object, Object>) binding;
+			for (Entry<Object, Object> entry : bindingMap.entrySet()) {
+				if (entry.getValue() instanceof Class<?>) {
+					entry.setValue(this.inspect((Class<Type>) entry.getValue()));
+				}
 			}
 		}
-		if (candidateBeans.size() != 1) {
-			throw new BeanException("Found '" + candidateBeans.size() + "' candidates for bean for '" + type + "': Either you forgot to bind the bean or add @Named to it");
-		}
-		return candidateBeans.get(0);
+		return new Bean<Type>((Type) binding, named, Utils.key(named, binding.getClass()));
 	}
 
 	private boolean inspectSingleton(Class<?> type) {
@@ -144,7 +147,7 @@ public class ClassInspector {
 			Class<?> t = entry.getKey().getType();
 			Named named = entry.getKey().getAnnotation(Named.class);
 			String n = null;
-			if (named != null && !utils.isEmpty(named.value())) {
+			if (named != null && !Utils.isEmpty(named.value())) {
 				n = named.value().trim();
 			}
 
@@ -164,7 +167,7 @@ public class ClassInspector {
 			constructorParametersBeans = new ArrayList<>();
 			for (int index = 0; index < constructorParameters.length; index++) {
 				try {
-					String named = utils.getAnnotationValue(Named.class, constructor.getParameterAnnotations()[index]);
+					String named = Utils.getAnnotationValue(Named.class, constructor.getParameterAnnotations()[index]);
 					constructorParametersBeans.add(this.inspect(constructorParameters[index], named, stack));
 				} catch (BeanException e) {
 					log.error("Problem when inspecting '{}.' constructor parameter of type '{}'", index + 1, constructorParameters[index]);
@@ -181,7 +184,7 @@ public class ClassInspector {
 		List<Constructor<?>> candidates = new ArrayList<>();
 
 		for (Constructor<?> constructor : constructors) {
-			if (utils.isPublic(constructor)) {
+			if (Utils.isPublic(constructor)) {
 				candidates.add(constructor);
 			}
 		}
