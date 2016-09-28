@@ -11,7 +11,7 @@ import javax.inject.Named;
 public class Utils {
 
 	public static String key(String name, Class<?> clazz) {
-		return (name == null ? "" : name + "-") + clazz.getCanonicalName();
+		return (isEmpty(name) ? "" : name + "-") + clazz.getCanonicalName();
 	}
 
 	public static String key(String name, Object instance) {
@@ -24,11 +24,13 @@ public class Utils {
 
 	public static String getAnnotationValue(Class<? extends Annotation> annotationClass, Annotation[] annotations) {
 		String value = null;
-		for (Annotation annotation : annotations) {
-			if (annotation.annotationType() == annotationClass) {
-				if (annotationClass == Named.class) {
-					value = ((Named) annotation).value();
-					break;
+		if (annotations != null) {
+			for (Annotation annotation : annotations) {
+				if (annotation.annotationType() == annotationClass) {
+					if (annotationClass == Named.class) {
+						value = ((Named) annotation).value();
+						break;
+					}
 				}
 			}
 		}
