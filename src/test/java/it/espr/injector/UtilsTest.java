@@ -3,7 +3,6 @@ package it.espr.injector;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
@@ -25,6 +24,12 @@ public class UtilsTest {
 	@Test
 	public void whenNameIsNullThenKeyContainsClassNameOnly() {
 		assertThat(Utils.key(null, this.getClass())).isEqualTo(this.getClass().getCanonicalName());
+	}
+
+	@Test
+	public void whenGettingKeyForInstanceItsTheSameAsForItsClass() {
+		String test = "test";
+		assertThat(Utils.key(null, test)).isEqualTo(Utils.key(null, test.getClass()));
 	}
 
 	@Test
@@ -92,6 +97,18 @@ public class UtilsTest {
 		annotations.add(mockAnnotation(Singleton.class));
 
 		String result = Utils.getAnnotationValue(Named.class, annotations.toArray(new Annotation[] {}));
+		assertThat(result).isNull();
+	}
+
+	@Test
+	public void whenAnnotationNotSupportedThenReturnNull() {
+		List<Annotation> annotations = new ArrayList<>();
+
+		annotations.add(mockAnnotation(Inject.class));
+		annotations.add(mockAnnotation(Deprecated.class));
+		annotations.add(mockAnnotation(Singleton.class));
+
+		String result = Utils.getAnnotationValue(Deprecated.class, annotations.toArray(new Annotation[] {}));
 		assertThat(result).isNull();
 	}
 

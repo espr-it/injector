@@ -3,8 +3,6 @@ package it.espr.injector;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.inject.Named;
 
@@ -37,22 +35,10 @@ public class Utils {
 		return isEmpty(value) ? null : value;
 	}
 
-	public static class Pair<First, Second> {
-		public final First p1;
-		public final Second p2;
-
-		public Pair(First p1, Second p2) {
-			this.p1 = p1;
-			this.p2 = p2;
-		}
-	}
-
 	public static boolean isPublic(Member member) {
-		List<Integer> modifiers = Arrays.asList(member.getModifiers());
-		for (Integer modifier : modifiers) {
-			if (Modifier.isPublic(modifier)) {
-				return true;
-			}
+		int modifiers = member.getModifiers();
+		if (Modifier.isPublic(modifiers)) {
+			return true;
 		}
 		return false;
 	}
