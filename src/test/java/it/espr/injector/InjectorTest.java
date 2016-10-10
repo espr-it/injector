@@ -1,5 +1,6 @@
 package it.espr.injector;
 
+import static it.espr.injector.Injector.injector;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.util.ArrayList;
@@ -7,25 +8,43 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import it.espr.injector.bean.BeanWithConfiguredFields;
 import it.espr.injector.bean.EmptyBean;
 import it.espr.injector.bean.SingletonBean;
+import it.espr.injector.bean.named.InterfaceForNamedBeans;
+import it.espr.injector.bean.named.NamedAbstractBean;
 
 public class InjectorTest {
 
-	private Injector injector;
-	
-	@Before
-	public void setUp() {
-		injector = Injector.get(new Configuration() {
+	private Injector getNewInjector() {
+		return injector(new Configuration() {
 		});
 	}
-	
+
+	@Test(expected = RuntimeException.class)
+	public void whenClassInspectorFailsRuntimeExceptionIsThrown() {
+		injector().get(InterfaceForNamedBeans.class);
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void whenBeanFactoryFailsRuntimeExceptionIsThrown() {
+		injector().get(NamedAbstractBean.class);
+	}
+
+	@Test
+	public void whenInjectorGetCalledSamedInstanceIsReturned() {
+		Injector injector1 = injector();
+		Injector injector2 = injector();
+
+		assertThat(injector1).isSameAs(injector2);
+	}
+
 	@Test
 	public void whenGetSimpleclassWithoutAnnotationThenAlwaysReturnPrototype() {
+		Injector injector = this.getNewInjector();
+
 		EmptyBean emptyBean1 = injector.get(EmptyBean.class);
 		EmptyBean emptyBean2 = injector.get(EmptyBean.class);
 
@@ -36,6 +55,8 @@ public class InjectorTest {
 
 	@Test
 	public void whenGetSingletonAnnotatedClassThenAlwaysReturnSameInstance() {
+		Injector injector = this.getNewInjector();
+
 		SingletonBean singleton1 = injector.get(SingletonBean.class);
 		SingletonBean singleton2 = injector.get(SingletonBean.class);
 
@@ -65,7 +86,7 @@ public class InjectorTest {
 			}
 		};
 
-		Injector injector = Injector.get(configuration);
+		Injector injector = injector(configuration);
 
 		BeanWithConfiguredFields bean1 = injector.get(BeanWithConfiguredFields.class);
 		BeanWithConfiguredFields bean2 = injector.get(BeanWithConfiguredFields.class);

@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import it.espr.injector.exception.BeanCreationExpection;
+
 public class BeanFactory {
 
 	private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
@@ -16,7 +18,7 @@ public class BeanFactory {
 	private Map<String, Object> cache = new HashMap<>();
 
 	@SuppressWarnings("unchecked")
-	public <Type> Type create(Bean<Type> bean) {
+	public <Type> Type create(Bean<Type> bean) throws BeanCreationExpection {
 		if (bean.instance != null) {
 			this.handleConfiguratedCollections(bean.instance);
 			return bean.instance;
@@ -63,13 +65,14 @@ public class BeanFactory {
 				}
 			} catch (Exception e) {
 				log.error("Problem when creating bean {}", bean, e);
+				throw new BeanCreationExpection("Problem when creating bean '" + bean + "'", e);
 			}
 		}
 
 		return instance;
 	}
 
-	private <Type> void handleConfiguratedCollections(Type configuredBean) {
+	private <Type> void handleConfiguratedCollections(Type configuredBean) throws BeanCreationExpection {
 		if (configuredBean instanceof List) {
 			this.handleConfiguredList(configuredBean);
 		} else if (configuredBean instanceof Map) {
@@ -78,7 +81,7 @@ public class BeanFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <Type> void handleConfiguredList(Type configuredList) {
+	private <Type> void handleConfiguredList(Type configuredList) throws BeanCreationExpection {
 		@SuppressWarnings("rawtypes")
 		List configuredBeanList = (List) configuredList;
 		for (int i = 0; i < configuredBeanList.size(); i++) {
@@ -89,7 +92,7 @@ public class BeanFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <Type> void handleConfiguredMap(Type configuredMap) {
+	private <Type> void handleConfiguredMap(Type configuredMap) throws BeanCreationExpection {
 		@SuppressWarnings("rawtypes")
 		Map<Object, Object> configuredBeanMap = (Map) configuredMap;
 		for (Entry<Object, Object> entry : configuredBeanMap.entrySet()) {

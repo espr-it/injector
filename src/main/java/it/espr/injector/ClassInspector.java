@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import it.espr.injector.Configuration.Bindings;
 import it.espr.injector.exception.BeanException;
+import it.espr.injector.exception.BeanInspectionExpection;
 import it.espr.injector.exception.CircularDependencyExpection;
 
 public class ClassInspector {
@@ -153,7 +154,7 @@ public class ClassInspector {
 
 			Bean<?> bean = this.inspect(t, n);
 			if (bean == null) {
-				throw new BeanException("Can't find a bean for type '" + t + "' @Named as '" + n + "'");
+				throw new BeanInspectionExpection("Can't find a bean for type '" + t + "' @Named as '" + n + "'");
 			}
 			entry.setValue(bean);
 		}
@@ -206,7 +207,7 @@ public class ClassInspector {
 		}
 
 		if (found == null) {
-			throw new BeanException("Found '" + constructors.size() + "' valid parametric constructors only, not sure which one to use (help me with @Inject)");
+			throw new BeanInspectionExpection("Found '" + constructors.size() + "' valid parametric constructors only, not sure which one to use (help me with @Inject)");
 		}
 
 		return found;

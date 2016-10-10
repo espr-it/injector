@@ -38,6 +38,11 @@ public class UtilsTest {
 	}
 
 	@Test
+	public void whenNameIsNotEmptyThenKeyContainsBothNameAndClassName() {
+		assertThat(Utils.key("my-key", this.getClass())).isEqualTo("my-key-" + this.getClass().getCanonicalName());
+	}
+
+	@Test
 	public void whenValueIsNullThenIsEmptyIsTrue() {
 		assertThat(Utils.isEmpty(null)).isTrue();
 	}
@@ -133,16 +138,11 @@ public class UtilsTest {
 		assertThat(Utils.isPublic(member)).isTrue();
 	}
 
+	@Test
 	public void whenMemberHasNoPublicModifierThenFalseIsReturned() {
 		Member member = mock(Member.class);
 		doReturn(Modifier.ABSTRACT + Modifier.INTERFACE + Modifier.STATIC).when(member).getModifiers();
-		assertThat(Utils.isPublic(member)).isTrue();
-	}
-
-	public void whenMemberHasModifiersThenFalseIsReturned() {
-		Member member = mock(Member.class);
-		doReturn(null).when(member).getModifiers();
-		assertThat(Utils.isPublic(member)).isTrue();
+		assertThat(Utils.isPublic(member)).isFalse();
 	}
 
 	private <Type extends Annotation> Type mockAnnotation(Class<Type> clazz) {

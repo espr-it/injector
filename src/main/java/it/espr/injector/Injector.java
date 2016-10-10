@@ -28,11 +28,11 @@ public class Injector {
 		this.beanFactory = new BeanFactory();
 	}
 
-	public static Injector get() {
-		return Injector.get((Configuration) null);
+	public static Injector injector() {
+		return injector((Configuration) null);
 	}
 
-	public static Injector get(Configuration configuration) {
+	public static Injector injector(Configuration configuration) {
 		if (injector == null || configuration != null) {
 			// create and configure new Injector
 			injector = new Injector();
