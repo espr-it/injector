@@ -20,9 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import it.espr.injector.Configuration.Bindings;
-import it.espr.injector.exception.BeanException;
-import it.espr.injector.exception.BeanInspectionExpection;
 import it.espr.injector.exception.CircularDependencyExpection;
+import it.espr.injector.exception.ClassInspectionExpection;
+import it.espr.injector.exception.InjectingException;
 
 public class ClassInspector {
 
@@ -49,20 +49,20 @@ public class ClassInspector {
 
 	private MyTypeSafeMap cache = new MyTypeSafeMap();
 
-	public <Type> Bean<Type> inspect(Class<Type> type) throws BeanException {
+	public <Type> Bean<Type> inspect(Class<Type> type) throws ClassInspectionExpection {
 		return this.inspect(type, new HashSet<Class<?>>());
 	}
 
-	private <Type> Bean<Type> inspect(Class<Type> type, Set<Class<?>> stack) throws BeanException {
+	private <Type> Bean<Type> inspect(Class<Type> type, Set<Class<?>> stack) throws ClassInspectionExpection {
 		return this.inspect(type, null, stack);
 	}
 
-	public <Type> Bean<Type> inspect(Class<Type> type, String named) throws BeanException {
+	public <Type> Bean<Type> inspect(Class<Type> type, String named) throws ClassInspectionExpection {
 		return this.inspect(type, named, new HashSet<Class<?>>());
 	}
 
 	@SuppressWarnings("unchecked")
-	private <Type> Bean<Type> inspect(Class<Type> type, String named, Set<Class<?>> stack) throws BeanException {
+	private <Type> Bean<Type> inspect(Class<Type> type, String named, Set<Class<?>> stack) throws ClassInspectionExpection {
 		if (!stack.add(type)) {
 			log.error("Circular dependency for {} - current dependency stack is: {}", type, stack);
 			throw new CircularDependencyExpection("Circular dependency detected: '" + type);
@@ -95,7 +95,7 @@ public class ClassInspector {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <Type> Bean<? extends Type> inspectBindings(Class<Type> type, String named) throws BeanException {
+	public <Type> Bean<? extends Type> inspectBindings(Class<Type> type, String named) throws ClassInspectionExpection {
 		Object binding = this.bindings.get(named, type);
 		if (binding instanceof Class) {
 			return this.inspect((Class<? extends Type>) binding, named);
@@ -130,7 +130,7 @@ public class ClassInspector {
 		return name;
 	}
 
-	private Map<Field, Bean<?>> inspectFields(Class<?> type) throws BeanException {
+	private Map<Field, Bean<?>> inspectFields(Class<?> type) throws ClassInspectionExpection {
 		Map<Field, Bean<?>> fields = new LinkedHashMap<>();
 
 		Class<?> c = type;
@@ -154,14 +154,14 @@ public class ClassInspector {
 
 			Bean<?> bean = this.inspect(t, n);
 			if (bean == null) {
-				throw new BeanInspectionExpection("Can't find a bean for type '" + t + "' @Named as '" + n + "'");
+				throw new ClassInspectionExpection("Can't find a bean for type '" + t + "' @Named as '" + n + "'");
 			}
 			entry.setValue(bean);
 		}
 		return fields.isEmpty() ? null : fields;
 	}
 
-	private List<Bean<?>> inspectConstructorParameters(Constructor<?> constructor, Set<Class<?>> stack) throws BeanException {
+	private List<Bean<?>> inspectConstructorParameters(Constructor<?> constructor, Set<Class<?>> stack) throws ClassInspectionExpection {
 		List<Bean<?>> constructorParametersBeans = null;
 		Class<?>[] constructorParameters = constructor.getParameterTypes();
 		if (constructorParameters.length != 0) {
@@ -170,7 +170,7 @@ public class ClassInspector {
 				try {
 					String named = Utils.getAnnotationValue(Named.class, constructor.getParameterAnnotations()[index]);
 					constructorParametersBeans.add(this.inspect(constructorParameters[index], named, stack));
-				} catch (BeanException e) {
+				} catch (InjectingException e) {
 					log.error("Problem when inspecting '{}.' constructor parameter of type '{}'", index + 1, constructorParameters[index]);
 					throw e;
 				}
@@ -180,7 +180,7 @@ public class ClassInspector {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <Type> Constructor<Type> inspectConstructors(Class<Type> type) throws BeanException {
+	public <Type> Constructor<Type> inspectConstructors(Class<Type> type) throws ClassInspectionExpection {
 		List<Constructor<?>> constructors = Arrays.asList(type.getDeclaredConstructors());
 		List<Constructor<?>> candidates = new ArrayList<>();
 
@@ -191,7 +191,7 @@ public class ClassInspector {
 		}
 
 		if (candidates.size() == 0) {
-			throw new BeanException("Couldn't find any valid constructor for '" + type + "'");
+			throw new ClassInspectionExpection("Couldn't find any valid constructor for '" + type + "'");
 		}
 
 		Constructor<Type> found = null;
@@ -207,7 +207,7 @@ public class ClassInspector {
 		}
 
 		if (found == null) {
-			throw new BeanInspectionExpection("Found '" + constructors.size() + "' valid parametric constructors only, not sure which one to use (help me with @Inject)");
+			throw new ClassInspectionExpection("Found '" + constructors.size() + "' valid parametric constructors only, not sure which one to use (help me with @Inject)");
 		}
 
 		return found;

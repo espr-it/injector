@@ -20,7 +20,7 @@ import it.espr.injector.bean.named.InterfaceForNamedBeans;
 import it.espr.injector.bean.named.NamedEmptyBeanA;
 import it.espr.injector.bean.named.NamedEmptyBeanB;
 import it.espr.injector.bean.named.NamedSingleton;
-import it.espr.injector.exception.BeanException;
+import it.espr.injector.exception.InjectingException;
 
 public class BeanFactoryTest {
 
@@ -32,7 +32,7 @@ public class BeanFactoryTest {
 	private ClassInspector beanInspector = new ClassInspector(this.configuration.bindings);
 
 	@Test
-	public void instantiateListWithClasses() throws BeanException {
+	public void instantiateListWithClasses() throws InjectingException {
 		final List<?> beans = new ArrayList<>(Arrays.asList(new Class[] { EmptyBean.class, SingletonBean.class, EmptyBean.class }));
 		Configuration configuration = new Configuration() {
 			@Override
@@ -53,7 +53,7 @@ public class BeanFactoryTest {
 	}
 
 	@Test
-	public void instantiateListWithClassesWithDependencies() throws BeanException {
+	public void instantiateListWithClassesWithDependencies() throws InjectingException {
 		final List<?> beans = new ArrayList<>(Arrays.asList(new Class[] { BeanWithConstructorWithMultipleLevelDependencies.class, ComplexBean.class }));
 		Configuration configuration = new Configuration() {
 			@Override
@@ -82,7 +82,7 @@ public class BeanFactoryTest {
 	}
 
 	@Test
-	public void instantiateMaptWithClasses() throws BeanException {
+	public void instantiateMaptWithClasses() throws InjectingException {
 		final Map<String,Object> map = new HashMap<>();
 		map.put("a", EmptyBean.class);
 		map.put("b", SingletonBean.class);
@@ -111,7 +111,7 @@ public class BeanFactoryTest {
 	}
 
 	@Test
-	public void instantiateMaptWithInstancesAndClasses() throws BeanException {
+	public void instantiateMaptWithInstancesAndClasses() throws InjectingException {
 		final Map<String,Object> map = new HashMap<>();
 		map.put("a", new EmptyBean());
 		map.put("b", SingletonBean.class);
@@ -135,7 +135,7 @@ public class BeanFactoryTest {
 	}
 
 	@Test
-	public void instantiateListWithInstancesAndClasses() throws BeanException {
+	public void instantiateListWithInstancesAndClasses() throws InjectingException {
 		final List<?> beans = new ArrayList<>(Arrays.asList(new Object[] { new EmptyBean(), SingletonBean.class, EmptyBean.class }));
 		Configuration configuration = new Configuration() {
 			@Override
@@ -153,31 +153,31 @@ public class BeanFactoryTest {
 	}
 
 	@Test
-	public void instantiateEmptyBean() throws BeanException {
+	public void instantiateEmptyBean() throws InjectingException {
 		EmptyBean bean = beanFactory.create(beanInspector.inspect(EmptyBean.class));
 		assertThat(bean).isNotNull();
 	}
 
 	@Test
-	public void instantiateEmptyBeanWithConstructor() throws BeanException {
+	public void instantiateEmptyBeanWithConstructor() throws InjectingException {
 		EmptyBeanWithConstructor bean = beanFactory.create(beanInspector.inspect(EmptyBeanWithConstructor.class));
 		assertThat(bean).isNotNull();
 	}
 
 	@Test
-	public void instantiateBeanWithConstructorWithSingleLevelDependencies() throws BeanException {
+	public void instantiateBeanWithConstructorWithSingleLevelDependencies() throws InjectingException {
 		BeanWithConstructorWithSingleLevelDependencies bean = beanFactory.create(beanInspector.inspect(BeanWithConstructorWithSingleLevelDependencies.class));
 		assertThat(bean).isNotNull();
 	}
 
 	@Test
-	public void BeanWithConstructorWithMultipleLevelDependencies() throws BeanException {
+	public void BeanWithConstructorWithMultipleLevelDependencies() throws InjectingException {
 		BeanWithConstructorWithMultipleLevelDependencies bean = beanFactory.create(beanInspector.inspect(BeanWithConstructorWithMultipleLevelDependencies.class));
 		assertThat(bean).isNotNull();
 	}
 
 	@Test
-	public void whenInstantiatingSignletonBeanAlwaysReturnSameInstance() throws BeanException {
+	public void whenInstantiatingSignletonBeanAlwaysReturnSameInstance() throws InjectingException {
 		Bean<SingletonBean> singletonBean = beanInspector.inspect(SingletonBean.class);
 
 		SingletonBean singleton1 = beanFactory.create(singletonBean);
@@ -186,7 +186,7 @@ public class BeanFactoryTest {
 	}
 
 	@Test
-	public void instantiateBeanWithMultipleDependenciesAndAnnotations() throws BeanException {
+	public void instantiateBeanWithMultipleDependenciesAndAnnotations() throws InjectingException {
 		Bean<SingletonBean> singletonBean = beanInspector.inspect(SingletonBean.class);
 
 		SingletonBean singleton1 = beanFactory.create(singletonBean);
@@ -195,7 +195,7 @@ public class BeanFactoryTest {
 	}
 
 	@Test
-	public void instantiateComplexBean() throws BeanException {
+	public void instantiateComplexBean() throws InjectingException {
 		configuration.bind(InterfaceForNamedBeans.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class);
 		Bean<ComplexBean> complexBean = beanInspector.inspect(ComplexBean.class);
 

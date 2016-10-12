@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import it.espr.injector.bean.BeanWithConstructorWithMultipleLevelDependencies;
 import it.espr.injector.bean.BeanWithConstructorWithSingleLevelDependencies;
+import it.espr.injector.bean.BeanWithTwoNonAnnotatedConstructors;
 import it.espr.injector.bean.ComplexBean;
 import it.espr.injector.bean.EmptyBean;
 import it.espr.injector.bean.EmptyBeanWithConstructor;
@@ -24,8 +25,9 @@ import it.espr.injector.bean.named.InterfaceForNamedBeans;
 import it.espr.injector.bean.named.NamedEmptyBeanA;
 import it.espr.injector.bean.named.NamedEmptyBeanB;
 import it.espr.injector.bean.named.NamedSingleton;
-import it.espr.injector.exception.BeanException;
 import it.espr.injector.exception.CircularDependencyExpection;
+import it.espr.injector.exception.ClassInspectionExpection;
+import it.espr.injector.exception.InjectingException;
 
 public class ClassInspectorTest {
 
@@ -35,7 +37,7 @@ public class ClassInspectorTest {
 	private ClassInspector classInspector = new ClassInspector(configuration.bindings);
 
 	@Test
-	public void whenInspectingTheSameBeanTheInspectorShouldReturnTheSameInstance() throws BeanException {
+	public void whenInspectingTheSameBeanTheInspectorShouldReturnTheSameInstance() throws InjectingException {
 		Bean<EmptyBean> emptyBean1 = classInspector.inspect(EmptyBean.class);
 		Bean<EmptyBean> emptyBean2 = classInspector.inspect(EmptyBean.class);
 
@@ -43,7 +45,7 @@ public class ClassInspectorTest {
 	}
 
 	@Test
-	public void inspectEmptyBean() throws BeanException {
+	public void inspectEmptyBean() throws InjectingException {
 		Bean<EmptyBean> emptyBean = classInspector.inspect(EmptyBean.class);
 
 		assertThat(emptyBean).isNotNull();
@@ -53,7 +55,7 @@ public class ClassInspectorTest {
 	}
 
 	@Test
-	public void inspectEmptyBeanWithConstructor() throws BeanException {
+	public void inspectEmptyBeanWithConstructor() throws InjectingException {
 		Bean<EmptyBeanWithConstructor> emptyBeanWithConstructor = classInspector.inspect(EmptyBeanWithConstructor.class);
 
 		assertThat(emptyBeanWithConstructor).isNotNull();
@@ -63,7 +65,7 @@ public class ClassInspectorTest {
 	}
 
 	@Test
-	public void inspectBeanWithConstructorWithSingleLevelDependencies() throws BeanException {
+	public void inspectBeanWithConstructorWithSingleLevelDependencies() throws InjectingException {
 		Bean<BeanWithConstructorWithSingleLevelDependencies> bean = classInspector.inspect(BeanWithConstructorWithSingleLevelDependencies.class);
 
 		assertThat(bean).isNotNull();
@@ -73,7 +75,7 @@ public class ClassInspectorTest {
 	}
 
 	@Test
-	public void inspectBeanWithConstructorWithMultipleLevelDependencies() throws BeanException {
+	public void inspectBeanWithConstructorWithMultipleLevelDependencies() throws InjectingException {
 		Bean<BeanWithConstructorWithMultipleLevelDependencies> bean = classInspector.inspect(BeanWithConstructorWithMultipleLevelDependencies.class);
 
 		assertThat(bean).isNotNull();
@@ -83,12 +85,17 @@ public class ClassInspectorTest {
 	}
 
 	@Test(expected = CircularDependencyExpection.class)
-	public void whenCircularDependencyDetectedThrowException() throws BeanException {
+	public void whenCircularDependencyDetectedThrowException() throws InjectingException {
 		classInspector.inspect(CircularBeanA.class);
 	}
 
+	@Test(expected = ClassInspectionExpection.class)
+	public void whenMultipleConstructorsPresentWithNoInjectAnnotationClassInspectionExceptionIsThrown() throws InjectingException {
+		classInspector.inspect(BeanWithTwoNonAnnotatedConstructors.class);
+	}
+
 	@Test
-	public void inspectSingletonBean() throws BeanException {
+	public void inspectSingletonBean() throws InjectingException {
 		Bean<SingletonBean> bean = classInspector.inspect(SingletonBean.class);
 
 		assertThat(bean).isNotNull();
@@ -99,7 +106,7 @@ public class ClassInspectorTest {
 	}
 
 	@Test
-	public void inspectBeanWithNamedFields() throws BeanException {
+	public void inspectBeanWithNamedFields() throws InjectingException {
 		configuration.bind(InterfaceForNamedBeans.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class);
 		Bean<BeanWithNamedFields> bean = classInspector.inspect(BeanWithNamedFields.class);
 
@@ -128,7 +135,7 @@ public class ClassInspectorTest {
 	}
 
 	@Test
-	public void inspectBeanWithNamedConstructorParameters() throws BeanException {
+	public void inspectBeanWithNamedConstructorParameters() throws InjectingException {
 		Configuration configuration = new Configuration() {
 			@Override
 			protected void configure() {
@@ -153,7 +160,7 @@ public class ClassInspectorTest {
 	}
 
 	@Test
-	public void inspectBeanWithNamedFieldsAndConstructorParameters() throws BeanException {
+	public void inspectBeanWithNamedFieldsAndConstructorParameters() throws InjectingException {
 		configuration.bind(InterfaceForNamedBeans.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class);
 		Bean<BeanWithNamedFieldsAndConstructorParameters> bean = classInspector.inspect(BeanWithNamedFieldsAndConstructorParameters.class);
 
@@ -175,7 +182,7 @@ public class ClassInspectorTest {
 	}
 
 	@Test
-	public void inspectComplexBean() throws BeanException {
+	public void inspectComplexBean() throws InjectingException {
 		configuration.bind(InterfaceForNamedBeans.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class);
 		Bean<ComplexBean> bean = classInspector.inspect(ComplexBean.class);
 

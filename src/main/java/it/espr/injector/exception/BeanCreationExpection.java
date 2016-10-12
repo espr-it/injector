@@ -1,6 +1,6 @@
 package it.espr.injector.exception;
 
-public class BeanCreationExpection extends BeanException {
+public class BeanCreationExpection extends InjectingException {
 
 	private static final long serialVersionUID = 1L;
 
