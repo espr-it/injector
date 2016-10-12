@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.inject.Named;
@@ -90,7 +91,7 @@ public abstract class Configuration {
 		public Object get(String name, Class<?> type) {
 			return this.bindings.get(Utils.key(name, type));
 		}
-		
+
 		public boolean has(Class<?> type) {
 			return this.has(null, type);
 		}
@@ -102,8 +103,11 @@ public abstract class Configuration {
 
 	final Bindings bindings;
 
+	final Properties properties;
+
 	protected Configuration() {
 		this.bindings = new Bindings();
+		this.properties = new Properties();
 	}
 
 	protected <Type> Binding<Type> bind(Class<Type> type) {
@@ -120,6 +124,10 @@ public abstract class Configuration {
 	};
 
 	final void initialise() {
+		Map<String, String> properties = this.properties.load();
+		for (Entry<String, String> entry : properties.entrySet()) {
+			this.bind(entry.getValue()).named(entry.getKey());
+		}
 		this.configure();
 	}
 }

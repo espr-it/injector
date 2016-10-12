@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import it.espr.injector.bean.BeanWithConfigurationProperties;
 import it.espr.injector.bean.BeanWithConfiguredFields;
 import it.espr.injector.bean.EmptyBean;
 import it.espr.injector.bean.SingletonBean;
@@ -102,4 +103,15 @@ public class InjectorTest {
 		assertThat(bean1.getBeanA()).isSameAs(beanA);
 		assertThat(bean1.getBeanB()).isSameAs(beanB);
 	}
+
+	@Test
+	public void whenGetBeanWithConfigurationPropertiesTheyArePopulated() {
+		Injector injector = this.getNewInjector();
+
+		BeanWithConfigurationProperties bean = injector.get(BeanWithConfigurationProperties.class);
+
+		assertThat(bean.getFirstProperty()).isEqualTo("first value");
+		assertThat(bean.getSecondProperty()).isEqualTo("second value");
+	}
+
 }
