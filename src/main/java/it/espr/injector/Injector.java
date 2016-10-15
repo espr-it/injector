@@ -15,7 +15,7 @@ public class Injector {
 
 	private ClassInspector classInspector;
 
-	public void configure(Configuration configuration) {
+	private void configure(Configuration configuration) {
 		if (configuration == null) {
 			this.configuration = new Configuration() {
 				// empty configuration
@@ -42,9 +42,13 @@ public class Injector {
 	}
 
 	public <Type> Type get(Class<Type> type) {
+		return this.get(type, null);
+	}
+
+	public <Type> Type get(Class<Type> type, String name) {
 		Type instance = null;
 		try {
-			Bean<Type> bean = classInspector.inspect(type);
+			Bean<Type> bean = classInspector.inspect(type, name);
 			instance = beanFactory.create(bean);
 		} catch (Exception e) {
 			log.error("Problem when getting instance of {}", type, e);
@@ -53,4 +57,5 @@ public class Injector {
 
 		return instance;
 	}
+
 }

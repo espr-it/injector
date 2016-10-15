@@ -8,13 +8,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import it.espr.injector.bean.BeanWithConfigurationProperties;
 import it.espr.injector.bean.BeanWithConfiguredFields;
 import it.espr.injector.bean.EmptyBean;
+import it.espr.injector.bean.ImplementingBean1;
+import it.espr.injector.bean.ImplementingBean2;
+import it.espr.injector.bean.SimpleInterface;
 import it.espr.injector.bean.SingletonBean;
-import it.espr.injector.bean.named.InterfaceForNamedBeans;
 import it.espr.injector.bean.named.NamedAbstractBean;
 
 public class InjectorTest {
@@ -26,12 +29,40 @@ public class InjectorTest {
 
 	@Test(expected = RuntimeException.class)
 	public void whenClassInspectorFailsRuntimeExceptionIsThrown() {
-		injector().get(InterfaceForNamedBeans.class);
+		getNewInjector().get(SimpleInterface.class);
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void whenBeanFactoryFailsRuntimeExceptionIsThrown() {
-		injector().get(NamedAbstractBean.class);
+		getNewInjector().get(NamedAbstractBean.class);
+	}
+
+	@Test
+	public void whenConfiguredAfterInitialisationItDropsOldConfigAndUseNewConfig() {
+		Injector injector = injector();
+
+		try {
+			assertThat(injector.get(SimpleInterface.class)).isNull();
+			Assert.fail();
+		} catch (Exception e) {
+			assertThat(e).isInstanceOf(RuntimeException.class);
+		}
+
+		injector = injector(new Configuration() {
+			@Override
+			protected void configure() {
+				this.bind(SimpleInterface.class).to(ImplementingBean1.class);
+			}
+		});
+		assertThat(injector.get(SimpleInterface.class)).isInstanceOf(ImplementingBean1.class);
+
+		injector = injector(new Configuration() {
+			@Override
+			protected void configure() {
+				this.bind(SimpleInterface.class).to(ImplementingBean2.class);
+			}
+		});
+		assertThat(injector.get(SimpleInterface.class)).isInstanceOf(ImplementingBean2.class);
 	}
 
 	@Test

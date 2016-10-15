@@ -1,5 +1,7 @@
 package it.espr.injector.bean.named;
 
-public abstract class NamedAbstractBean implements InterfaceForNamedBeans {
+import it.espr.injector.bean.SimpleInterface;
+
+public abstract class NamedAbstractBean implements SimpleInterface {
 
 }

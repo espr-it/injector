@@ -3,16 +3,17 @@ package it.espr.injector.bean.named;
 import javax.inject.Named;
 
 import it.espr.injector.bean.EmptyBean;
+import it.espr.injector.bean.SimpleInterface;
 
 public class BeanWithNamedConstructorParameters {
 
 	private EmptyBean emptyBean;
 
-	private InterfaceForNamedBeans beanA;
+	private SimpleInterface beanA;
 
-	private InterfaceForNamedBeans beanB;
+	private SimpleInterface beanB;
 
-	public BeanWithNamedConstructorParameters(EmptyBean emptyBean, @Named("a") InterfaceForNamedBeans beanA, @Named("b") InterfaceForNamedBeans beanB) {
+	public BeanWithNamedConstructorParameters(EmptyBean emptyBean, @Named("a") SimpleInterface beanA, @Named("b") SimpleInterface beanB) {
 		super();
 		this.emptyBean = emptyBean;
 		this.beanB = beanB;
@@ -23,11 +24,11 @@ public class BeanWithNamedConstructorParameters {
 		return emptyBean;
 	}
 
-	public InterfaceForNamedBeans getBeanA() {
+	public SimpleInterface getBeanA() {
 		return beanA;
 	}
 
-	public InterfaceForNamedBeans getBeanB() {
+	public SimpleInterface getBeanB() {
 		return beanB;
 	}
 }

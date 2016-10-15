@@ -4,6 +4,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import it.espr.injector.bean.EmptyBean;
+import it.espr.injector.bean.SimpleInterface;
 
 public class BeanWithNamedFieldsAndConstructorParameters {
 
@@ -11,11 +12,11 @@ public class BeanWithNamedFieldsAndConstructorParameters {
 
 	@Inject
 	@Named("a")
-	private InterfaceForNamedBeans beanA;
+	private SimpleInterface beanA;
 
-	private InterfaceForNamedBeans beanB;
+	private SimpleInterface beanB;
 
-	public BeanWithNamedFieldsAndConstructorParameters(EmptyBean emptyBean, @Named("b") InterfaceForNamedBeans beanB) {
+	public BeanWithNamedFieldsAndConstructorParameters(EmptyBean emptyBean, @Named("b") SimpleInterface beanB) {
 		super();
 		this.emptyBean = emptyBean;
 		this.beanB = beanB;
@@ -25,11 +26,11 @@ public class BeanWithNamedFieldsAndConstructorParameters {
 		return emptyBean;
 	}
 
-	public InterfaceForNamedBeans getBeanA() {
+	public SimpleInterface getBeanA() {
 		return beanA;
 	}
 
-	public InterfaceForNamedBeans getBeanB() {
+	public SimpleInterface getBeanB() {
 		return beanB;
 	}
 }

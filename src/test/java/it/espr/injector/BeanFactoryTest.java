@@ -15,11 +15,12 @@ import it.espr.injector.bean.BeanWithConstructorWithSingleLevelDependencies;
 import it.espr.injector.bean.ComplexBean;
 import it.espr.injector.bean.EmptyBean;
 import it.espr.injector.bean.EmptyBeanWithConstructor;
+import it.espr.injector.bean.SimpleInterface;
 import it.espr.injector.bean.SingletonBean;
-import it.espr.injector.bean.named.InterfaceForNamedBeans;
 import it.espr.injector.bean.named.NamedEmptyBeanA;
 import it.espr.injector.bean.named.NamedEmptyBeanB;
 import it.espr.injector.bean.named.NamedSingleton;
+import it.espr.injector.exception.BeanCreationExpection;
 import it.espr.injector.exception.InjectingException;
 
 public class BeanFactoryTest {
@@ -52,6 +53,12 @@ public class BeanFactoryTest {
 		assertSame(myList.get(1), myAnotherList.get(1));
 	}
 
+	@Test(expected=BeanCreationExpection.class)
+	public void instantiateInterfaceWillThrowBeanCreationException() throws InjectingException {
+		Bean<SimpleInterface> simpleInterfaceBean = new Bean<SimpleInterface>(null, "key", false, SimpleInterface.class, null, null, null);
+		beanFactory.create(simpleInterfaceBean);
+	}
+	
 	@Test
 	public void instantiateListWithClassesWithDependencies() throws InjectingException {
 		final List<?> beans = new ArrayList<>(Arrays.asList(new Class[] { BeanWithConstructorWithMultipleLevelDependencies.class, ComplexBean.class }));
@@ -59,7 +66,7 @@ public class BeanFactoryTest {
 			@Override
 			protected void configure() {
 				this.bind(beans).named("myList");
-				this.bind(InterfaceForNamedBeans.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class);
+				this.bind(SimpleInterface.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class);
 			}
 		};
 		configuration.configure();
@@ -196,7 +203,7 @@ public class BeanFactoryTest {
 
 	@Test
 	public void instantiateComplexBean() throws InjectingException {
-		configuration.bind(InterfaceForNamedBeans.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class);
+		configuration.bind(SimpleInterface.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class);
 		Bean<ComplexBean> complexBean = beanInspector.inspect(ComplexBean.class);
 
 		ComplexBean complexBean1 = beanFactory.create(complexBean);

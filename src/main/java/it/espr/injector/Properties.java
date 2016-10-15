@@ -18,8 +18,12 @@ public class Properties {
 	private static final Logger log = LoggerFactory.getLogger(Properties.class);
 
 	public Map<String, String> load() {
+		return this.load(null);
+	}
+
+	public Map<String, String> load(String filename) {
 		Map<String, String> properties = new HashMap<>();
-		java.util.Properties file = this.loadPropertyFile();
+		java.util.Properties file = this.loadPropertyFile(this.getFileClasspath(filename));
 		if (file != null && !file.isEmpty()) {
 			for (Entry<Object, Object> entry : file.entrySet()) {
 				if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
@@ -34,15 +38,27 @@ public class Properties {
 		return properties;
 	}
 
-	private java.util.Properties loadPropertyFile() {
+	private String getFileClasspath(String filename) {
+		String fileClasspath = "";
+		if (Utils.isEmpty(filename)) {
+			fileClasspath = "configuration.properties";
+		} else {
+			fileClasspath += filename;
+		}
+		if (!fileClasspath.startsWith("/")) {
+			fileClasspath = "/" + fileClasspath;
+		}
+		return fileClasspath;
+	}
+
+	private java.util.Properties loadPropertyFile(String filename) {
 		java.util.Properties prop = new java.util.Properties();
 		InputStream input = null;
-		String propertyFile = "/configuration.properties";
 		try {
-			input = new FileInputStream(new File(this.getClass().getResource(propertyFile).toURI()));
+			input = new FileInputStream(new File(this.getClass().getResource(filename).toURI()));
 			prop.load(input);
 		} catch (Exception e) {
-			log.debug("Couldn't load configuration properties file {}", propertyFile, e);
+			log.debug("Couldn't load configuration properties file {}", filename, e);
 		} finally {
 			if (input != null) {
 				try {

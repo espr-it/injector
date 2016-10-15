@@ -16,12 +16,12 @@ import it.espr.injector.bean.BeanWithTwoNonAnnotatedConstructors;
 import it.espr.injector.bean.ComplexBean;
 import it.espr.injector.bean.EmptyBean;
 import it.espr.injector.bean.EmptyBeanWithConstructor;
+import it.espr.injector.bean.SimpleInterface;
 import it.espr.injector.bean.SingletonBean;
 import it.espr.injector.bean.circular.CircularBeanA;
 import it.espr.injector.bean.named.BeanWithNamedConstructorParameters;
 import it.espr.injector.bean.named.BeanWithNamedFields;
 import it.espr.injector.bean.named.BeanWithNamedFieldsAndConstructorParameters;
-import it.espr.injector.bean.named.InterfaceForNamedBeans;
 import it.espr.injector.bean.named.NamedEmptyBeanA;
 import it.espr.injector.bean.named.NamedEmptyBeanB;
 import it.espr.injector.bean.named.NamedSingleton;
@@ -107,7 +107,7 @@ public class ClassInspectorTest {
 
 	@Test
 	public void inspectBeanWithNamedFields() throws InjectingException {
-		configuration.bind(InterfaceForNamedBeans.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class);
+		configuration.bind(SimpleInterface.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class);
 		Bean<BeanWithNamedFields> bean = classInspector.inspect(BeanWithNamedFields.class);
 
 		assertThat(bean).isNotNull();
@@ -139,7 +139,7 @@ public class ClassInspectorTest {
 		Configuration configuration = new Configuration() {
 			@Override
 			protected void configure() {
-				this.bind(InterfaceForNamedBeans.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class);
+				this.bind(SimpleInterface.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class);
 			}
 		};
 		configuration.configure();
@@ -161,7 +161,7 @@ public class ClassInspectorTest {
 
 	@Test
 	public void inspectBeanWithNamedFieldsAndConstructorParameters() throws InjectingException {
-		configuration.bind(InterfaceForNamedBeans.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class);
+		configuration.bind(SimpleInterface.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class);
 		Bean<BeanWithNamedFieldsAndConstructorParameters> bean = classInspector.inspect(BeanWithNamedFieldsAndConstructorParameters.class);
 
 		assertThat(bean).isNotNull();
@@ -183,7 +183,7 @@ public class ClassInspectorTest {
 
 	@Test
 	public void inspectComplexBean() throws InjectingException {
-		configuration.bind(InterfaceForNamedBeans.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class);
+		configuration.bind(SimpleInterface.class).to(NamedEmptyBeanA.class, NamedEmptyBeanB.class, NamedSingleton.class);
 		Bean<ComplexBean> bean = classInspector.inspect(ComplexBean.class);
 
 		assertThat(bean).isNotNull();

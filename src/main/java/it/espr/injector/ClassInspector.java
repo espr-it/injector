@@ -72,6 +72,8 @@ public class ClassInspector {
 		if (bean == null) {
 			if (this.bindings.has(named, type)) {
 				bean = (Bean<Type>) this.inspectBindings(type, named);
+			} else if (type.isInterface() || Utils.isAbstract(type)) {
+				throw new ClassInspectionExpection("Couldn't find any bound implementation for '" + type + "'");
 			} else {
 				String name = this.inspectName(type);
 

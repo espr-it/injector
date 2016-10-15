@@ -3,19 +3,17 @@ package it.espr.injector.bean;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import it.espr.injector.bean.named.InterfaceForNamedBeans;
-
 public class ComplexBean {
 
 	@Inject
 	@Named("a")
-	private InterfaceForNamedBeans beanA;
+	private SimpleInterface beanA;
 
-	private InterfaceForNamedBeans beanB;
+	private SimpleInterface beanB;
 
 	@Inject
 	@Named("single")
-	private InterfaceForNamedBeans namedSingleton;
+	private SimpleInterface namedSingleton;
 
 	private SingletonBean singletonBean;
 
@@ -24,7 +22,7 @@ public class ComplexBean {
 
 	private BeanWithConstructorWithSingleLevelDependencies beanWithConstructorWithSingleLevelDependencies;
 
-	public ComplexBean(@Named("b") InterfaceForNamedBeans beanB, SingletonBean singletonBean,
+	public ComplexBean(@Named("b") SimpleInterface beanB, SingletonBean singletonBean,
 			BeanWithConstructorWithSingleLevelDependencies beanWithConstructorWithSingleLevelDependencies) {
 		super();
 		this.beanB = beanB;
@@ -32,15 +30,15 @@ public class ComplexBean {
 		this.beanWithConstructorWithSingleLevelDependencies = beanWithConstructorWithSingleLevelDependencies;
 	}
 
-	public InterfaceForNamedBeans getBeanA() {
+	public SimpleInterface getBeanA() {
 		return beanA;
 	}
 
-	public InterfaceForNamedBeans getBeanB() {
+	public SimpleInterface getBeanB() {
 		return beanB;
 	}
 
-	public InterfaceForNamedBeans getNamedSingleton() {
+	public SimpleInterface getNamedSingleton() {
 		return namedSingleton;
 	}
 

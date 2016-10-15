@@ -35,6 +35,13 @@ public class Utils {
 		return isEmpty(value) ? null : value;
 	}
 
+	public static boolean isAbstract(Class<?> klass) {
+		if (Modifier.isAbstract(klass.getModifiers())) {
+			return true;
+		}
+		return false;
+	}
+
 	public static boolean isPublic(Member member) {
 		int modifiers = member.getModifiers();
 		if (Modifier.isPublic(modifiers)) {
