@@ -110,13 +110,21 @@ public abstract class Configuration {
 		this.properties = new Properties();
 	}
 
-	protected <Type> Binding<Type> bind(Class<Type> type) {
+	protected final <Type> Binding<Type> bind(Class<Type> type) {
 		return new Binding<Type>(this.bindings, type);
 	}
 
-	protected <Type> Binding<Type> bind(Type type) {
+	protected final <Type> Binding<Type> bind(Type type) {
 		return new Binding<Type>(this.bindings, type);
 
+	}
+
+	protected final boolean isBound(Class<?> type) {
+		return this.isBound(type, null);
+	}
+
+	protected final boolean isBound(Object type, String name) {
+		return this.bindings.bindings.containsKey(Utils.key(name, type));
 	}
 
 	protected void configure() {
