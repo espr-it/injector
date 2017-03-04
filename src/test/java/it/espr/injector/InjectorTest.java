@@ -145,4 +145,16 @@ public class InjectorTest {
 		assertThat(bean.getSecondProperty()).isEqualTo("second value");
 	}
 
+	@Test
+	public void whenInterfacedBeanIsNamedInConfigurationThenItsInjected() {
+		Configuration configuration = new Configuration() {
+			@Override
+			protected void configure() {
+				this.bind(SimpleInterface.class).to(ImplementingBean1.class).named("a");
+			}
+		};
+		Injector injector = Injector.injector(configuration);
+		assertThat(injector.get(SimpleInterface.class, "a")).isNotNull();
+	}
+
 }

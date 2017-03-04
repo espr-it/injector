@@ -100,7 +100,8 @@ public class ClassInspector {
 	public <Type> Bean<? extends Type> inspectBindings(Class<Type> type, String named) throws ClassInspectionExpection {
 		Object binding = this.bindings.get(named, type);
 		if (binding instanceof Class) {
-			return this.inspect((Class<? extends Type>) binding, named);
+			// don't pass @Named when we are looking for bound impl of interface 
+			return this.inspect((Class<? extends Type>) binding, type.equals(binding) ? named : null);
 		} else if (binding instanceof List) {
 			List<Object> bindingList = (List<Object>) binding;
 			for (int i = 0; i < bindingList.size(); i++) {
