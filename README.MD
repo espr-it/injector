@@ -1,5 +1,5 @@
 # Simple injector for Java
-[![Build Status](https://travis-ci.org/espr-it/injector.svg?branch=master)](https://travis-ci.org/espr-it/injector) [![codecov.io](http://codecov.io/github/espr-it/injector/coverage.svg?branch=master)](http://codecov.io/github/espr-it/injector?branch=master) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/it.espr/esprit-injector/badge.svg)](https://maven-badges.herokuapp.com/maven-central/it.espr/esprit-injector)
+[![Build Status](https://travis-ci.org/espr-it/injector.svg?branch=master)](https://travis-ci.org/espr-it/injector) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/it.espr/esprit-injector/badge.svg)](https://maven-badges.herokuapp.com/maven-central/it.espr/esprit-injector) [![codecov.io](http://codecov.io/github/espr-it/injector/coverage.svg?branch=master)](http://codecov.io/github/espr-it/injector?branch=master)
 
 Super simple and hopefuly fast injector for Java projects. It's intentionally functionaly limited and supports only couple of most important features. It's used by esprit-mvc which tries to be light weight and very friendly with Google App Engine. Doesn't run any classpath scanning and support injections of constructors and fields with @Inject, @Singleton and @Named annotations. Also support very simple configuration of beans through java Configuration class.
 
