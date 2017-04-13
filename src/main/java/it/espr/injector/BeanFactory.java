@@ -26,11 +26,14 @@ public class BeanFactory {
 
 		Type instance = null;
 		if (bean.singleton) {
+			log.debug("Bean {} is singleton, getting from cache", bean);
 			instance = (Type) this.cache.get(bean.key);
+			log.debug("Singleton bean {} {} found in cache", bean, instance == null ? "wasn't" : "was");
 		}
 
 		if (instance == null) {
 			try {
+				log.debug("Creating a new instance of {}", bean);
 				if (bean.constructorParameters == null || bean.constructorParameters.size() == 0) {
 					instance = bean.constructor.newInstance();
 				} else {
@@ -40,9 +43,11 @@ public class BeanFactory {
 					}
 					instance = bean.constructor.newInstance(constructorParameterInstances);
 				}
+				log.debug("New instance of created {}", bean);
 
 				// instantiate fields
 				if (bean.fields != null) {
+					log.debug("Setting fields {} for bean {}", bean.fields, bean);
 					for (Entry<Field, Bean<?>> entry : bean.fields.entrySet()) {
 						Field f = entry.getKey();
 						Bean<?> b = entry.getValue();
@@ -58,6 +63,7 @@ public class BeanFactory {
 							f.setAccessible(false);
 						}
 					}
+					log.debug("Fields set {} for bean {}", bean.fields, bean);
 				}
 
 				if (bean.singleton) {

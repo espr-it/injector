@@ -48,8 +48,12 @@ public class Injector {
 	public <Type> Type get(Class<Type> type, String name) {
 		Type instance = null;
 		try {
+			log.debug("Inspecting type {} with name {}", type, name);
 			Bean<Type> bean = classInspector.inspect(type, name);
+			log.debug("Inspected type {} with name {} and foun {}", type, name, bean);
+			log.debug("Creating instance of {}", bean);
 			instance = beanFactory.create(bean);
+			log.debug("Instance of {} created", bean);
 		} catch (Exception e) {
 			log.error("Problem when getting instance of {}", type, e);
 			throw new RuntimeException("Can't inject bean of type '" + type + "'", e);
