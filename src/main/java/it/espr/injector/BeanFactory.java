@@ -33,7 +33,7 @@ public class BeanFactory {
 
 		if (instance == null) {
 			try {
-				log.debug("Creating a new instance of {}", bean);
+				log.debug("Creating a new instance of {}", bean.type);
 				if (bean.constructorParameters == null || bean.constructorParameters.size() == 0) {
 					instance = bean.constructor.newInstance();
 				} else {
@@ -43,7 +43,7 @@ public class BeanFactory {
 					}
 					instance = bean.constructor.newInstance(constructorParameterInstances);
 				}
-				log.debug("New instance of created {}", bean);
+				log.debug("New instance of {} created", instance);
 
 				// instantiate fields
 				if (bean.fields != null) {

@@ -50,10 +50,10 @@ public class Injector {
 		try {
 			log.debug("Inspecting type {} with name {}", type, name);
 			Bean<Type> bean = classInspector.inspect(type, name);
-			log.debug("Inspected type {} with name {} and foun {}", type, name, bean);
-			log.debug("Creating instance of {}", bean);
+			log.debug("Inspected type {} with name {} and found {}", type, name, bean == null ? null : bean.type);
+			log.debug("Creating instance of {}", bean == null ? null : bean.type);
 			instance = beanFactory.create(bean);
-			log.debug("Instance of {} created", bean);
+			log.debug("Instance {} of {} created", instance, bean == null ? null : bean.type);
 		} catch (Exception e) {
 			log.error("Problem when getting instance of {}", type, e);
 			throw new RuntimeException("Can't inject bean of type '" + type + "'", e);
