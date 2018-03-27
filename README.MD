@@ -1,5 +1,5 @@
 # Simple Java Injector
-[![Build Status](https://travis-ci.org/espr-it/injector.svg?branch=master)](https://travis-ci.org/espr-it/injector) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/it.espr/esprit-injector/badge.svg)](https://maven-badges.herokuapp.com/maven-central/it.espr/esprit-injector) [![codecov.io](http://codecov.io/github/espr-it/injector/coverage.svg?branch=master)](http://codecov.io/github/espr-it/injector?branch=master)
+[![Build Status](https://travis-ci.org/espr-it/injector.svg?branch=master)](https://travis-ci.org/espr-it/injector) [![Maven Central](https://img.shields.io/maven-central/v/it.espr/esprit-injector.svg)] [![codecov.io](http://codecov.io/github/espr-it/injector/coverage.svg?branch=master)](http://codecov.io/github/espr-it/injector?branch=master)
 
 Main goal of this project is to provide simple and easy to use injection capatibilities for java projects with as little as possible configuration needed. Aiming for speed (especially on Google App Engine) made me to do some upfront decisions on design:
 
